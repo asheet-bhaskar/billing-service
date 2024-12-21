@@ -1,0 +1,13 @@
+CREATE TABLE bills (
+    id SERIAL PRIMARY KEY,
+    description VARCHAR(100) NOT NULL,
+    customer_id SERIAL NOT NULL,
+    currency_code VARCHAR(3) NOT NULL CHECK (currency_code IN ('USD', 'GEL')),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('open', 'closed')),
+    total_amount DECIMAL(18, 2) DEFAULT 0.00,
+    period_start TIMESTAMP NOT NULL,
+    period_end TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+);
