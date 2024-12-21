@@ -3,6 +3,6 @@ CREATE TABLE customers (
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     email     VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL DEFAULT timezone('UTC', NOW()),
+    updated_at TIMESTAMP NOT NULL DEFAULT timezone('UTC', NOW())
 );
