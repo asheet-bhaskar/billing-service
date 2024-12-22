@@ -12,7 +12,7 @@ import (
 
 type CustomerRepositoryTestSuite struct {
 	suite.Suite
-	cr       customerRepository
+	cr       CustomerRepository
 	customer *models.Customer
 }
 

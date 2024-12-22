@@ -13,8 +13,8 @@ import (
 type BillRepositoryTestSuite struct {
 	suite.Suite
 	br       billRepository
-	csr      customerRepository
-	crr      currencyRepository
+	csr      CustomerRepository
+	crr      CurrencyRepository
 	bill     *models.Bill
 	customer *models.Customer
 	currency *models.Currency

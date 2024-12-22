@@ -12,7 +12,7 @@ import (
 
 type CurrencyRepositoryTestSuite struct {
 	suite.Suite
-	cr       currencyRepository
+	cr       CurrencyRepository
 	currency *models.Currency
 }
 

@@ -8,23 +8,23 @@ import (
 	"gorm.io/gorm"
 )
 
-type CurrencyRepository struct {
+type currencyRepository struct {
 	db *gorm.DB
 }
 
-type currencyRepository interface {
+type CurrencyRepository interface {
 	Create(context.Context, *models.Currency) (*models.Currency, error)
 	GetByID(context.Context, int64) (*models.Currency, error)
 	GetByCode(context.Context, string) (*models.Currency, error)
 }
 
-func NewCurrencyRepository(dbClient *gorm.DB) currencyRepository {
-	return &CurrencyRepository{
+func NewCurrencyRepository(dbClient *gorm.DB) CurrencyRepository {
+	return &currencyRepository{
 		db: dbClient,
 	}
 }
 
-func (cr *CurrencyRepository) Create(ctx context.Context, currency *models.Currency) (*models.Currency, error) {
+func (cr *currencyRepository) Create(ctx context.Context, currency *models.Currency) (*models.Currency, error) {
 	result := cr.db.Create(&currency)
 
 	if result.Error != nil {
@@ -35,7 +35,7 @@ func (cr *CurrencyRepository) Create(ctx context.Context, currency *models.Curre
 	return currency, nil
 }
 
-func (cr *CurrencyRepository) GetByID(ctx context.Context, id int64) (*models.Currency, error) {
+func (cr *currencyRepository) GetByID(ctx context.Context, id int64) (*models.Currency, error) {
 	currency := &models.Currency{}
 	result := cr.db.First(&currency, id)
 
@@ -47,7 +47,7 @@ func (cr *CurrencyRepository) GetByID(ctx context.Context, id int64) (*models.Cu
 	return currency, nil
 }
 
-func (cr *CurrencyRepository) GetByCode(ctx context.Context, code string) (*models.Currency, error) {
+func (cr *currencyRepository) GetByCode(ctx context.Context, code string) (*models.Currency, error) {
 	currency := &models.Currency{}
 	result := cr.db.Where("code = ?", code).First(&currency)
 

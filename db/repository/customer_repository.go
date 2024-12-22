@@ -8,22 +8,22 @@ import (
 	"gorm.io/gorm"
 )
 
-type CustomerRepository struct {
+type customerRepository struct {
 	db *gorm.DB
 }
 
-type customerRepository interface {
+type CustomerRepository interface {
 	Create(context.Context, *models.Customer) (*models.Customer, error)
 	GetByID(context.Context, int64) (*models.Customer, error)
 }
 
-func NewCustomerRepository(dbClient *gorm.DB) customerRepository {
-	return &CustomerRepository{
+func NewCustomerRepository(dbClient *gorm.DB) CustomerRepository {
+	return &customerRepository{
 		db: dbClient,
 	}
 }
 
-func (cr *CustomerRepository) Create(ctx context.Context, customer *models.Customer) (*models.Customer, error) {
+func (cr *customerRepository) Create(ctx context.Context, customer *models.Customer) (*models.Customer, error) {
 	result := cr.db.Create(&customer)
 
 	if result.Error != nil {
@@ -34,7 +34,7 @@ func (cr *CustomerRepository) Create(ctx context.Context, customer *models.Custo
 	return customer, nil
 }
 
-func (cr *CustomerRepository) GetByID(ctx context.Context, id int64) (*models.Customer, error) {
+func (cr *customerRepository) GetByID(ctx context.Context, id int64) (*models.Customer, error) {
 	customer := &models.Customer{}
 	result := cr.db.First(&customer, id)
 
