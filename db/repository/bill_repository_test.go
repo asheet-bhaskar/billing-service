@@ -12,7 +12,7 @@ import (
 
 type BillRepositoryTestSuite struct {
 	suite.Suite
-	br       billRepository
+	br       BillRepository
 	csr      CustomerRepository
 	crr      CurrencyRepository
 	bill     *models.Bill
