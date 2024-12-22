@@ -1,4 +1,4 @@
-package bill
+package models
 
 import (
 	"time"
@@ -8,22 +8,13 @@ type Bill struct {
 	ID          int64
 	Description string
 	CustomerID  int64
-	CurrencyID  string
+	CurrencyID  int64
 	Status      string
 	TotalAmount float64
 	PeriodStart time.Time
 	PeriodEnd   time.Time
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-}
-
-type Currency struct {
-	ID        int64
-	Code      string
-	Name      string
-	Symbol    string
-	CreatedAt time.Time
-	UpdatedAt time.Time
 }
 
 type LineItem struct {
