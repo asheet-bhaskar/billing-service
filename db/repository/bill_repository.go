@@ -8,22 +8,22 @@ import (
 	"gorm.io/gorm"
 )
 
-type BillRepository struct {
+type billRepository struct {
 	db *gorm.DB
 }
 
-type billRepository interface {
+type BillRepository interface {
 	Create(context.Context, *models.Bill) (*models.Bill, error)
 	GetByID(context.Context, int64) (*models.Bill, error)
 }
 
-func NewBillRepository(dbClient *gorm.DB) billRepository {
-	return &BillRepository{
+func NewBillRepository(dbClient *gorm.DB) BillRepository {
+	return &billRepository{
 		db: dbClient,
 	}
 }
 
-func (br *BillRepository) Create(ctx context.Context, bill *models.Bill) (*models.Bill, error) {
+func (br *billRepository) Create(ctx context.Context, bill *models.Bill) (*models.Bill, error) {
 	result := br.db.Create(&bill)
 
 	if result.Error != nil {
@@ -34,7 +34,7 @@ func (br *BillRepository) Create(ctx context.Context, bill *models.Bill) (*model
 	return bill, nil
 }
 
-func (br *BillRepository) GetByID(ctx context.Context, id int64) (*models.Bill, error) {
+func (br *billRepository) GetByID(ctx context.Context, id int64) (*models.Bill, error) {
 	bill := &models.Bill{}
 	result := br.db.First(&bill, id)
 
