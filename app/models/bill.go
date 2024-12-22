@@ -25,3 +25,18 @@ type LineItem struct {
 	CreatedAt   time.Time
 	Removed     bool
 }
+
+type BillRequest struct {
+	Description  string
+	CustomerID   int64
+	CurrencyCode string
+	PeriodStart  time.Time
+	PeriodEnd    time.Time
+}
+
+func (r *BillRequest) IsValid() bool {
+	if (r.Description == "" || r.CustomerID <= 0 || r.CurrencyCode == "" || r.PeriodStart == time.Time{} || r.PeriodEnd == time.Time{}) {
+		return false
+	}
+	return true
+}

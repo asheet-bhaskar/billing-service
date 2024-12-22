@@ -10,3 +10,10 @@ type Customer struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+func (r *Customer) IsValid() bool {
+	if r.FirstName == "" || r.LastName == "" || r.Email == "" {
+		return false
+	}
+	return true
+}

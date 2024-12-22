@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Currency struct {
 	ID        int64
@@ -9,4 +11,11 @@ type Currency struct {
 	Symbol    string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+func (r *Currency) IsValid() bool {
+	if r.Code == "" || r.Name == "" || r.Symbol == "" {
+		return false
+	}
+	return true
 }
