@@ -22,9 +22,9 @@ func (suite *CurrencyRepositoryTestSuite) SetupTest() {
 
 	suite.cr = NewCurrencyRepository(dbClient.DB)
 	suite.currency = &models.Currency{
-		Code:      "USD",
-		Name:      "United states dollar",
-		Symbol:    "$",
+		Code:      "GEL",
+		Name:      "Geogrian Lari",
+		Symbol:    "ლ",
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	}
