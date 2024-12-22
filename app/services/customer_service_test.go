@@ -7,34 +7,20 @@ import (
 	"time"
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
-	"github.com/stretchr/testify/mock"
+	"github.com/asheet-bhaskar/billing-service/db/repository"
 	"github.com/stretchr/testify/suite"
 )
 
-type MockCustomerRepository struct {
-	mock.Mock
-}
-
-func (m *MockCustomerRepository) Create(ctx context.Context, customer *models.Customer) (*models.Customer, error) {
-	args := m.Called(ctx, customer)
-	return args.Get(0).(*models.Customer), args.Error(1)
-}
-
-func (m *MockCustomerRepository) GetByID(ctx context.Context, id int64) (*models.Customer, error) {
-	args := m.Called(ctx, id)
-	return args.Get(0).(*models.Customer), args.Error(1)
-}
-
 type CustomerServiceTestSuite struct {
 	suite.Suite
-	MockRepo *MockCustomerRepository
+	MockRepo *repository.MockCustomerRepository
 	cs       CustomerService
 	customer *models.Customer
 }
 
 func (suite *CustomerServiceTestSuite) SetupTest() {
 
-	mockRepo := new(MockCustomerRepository)
+	mockRepo := new(repository.MockCustomerRepository)
 	suite.MockRepo = mockRepo
 	suite.cs = NewCustomerService(mockRepo)
 

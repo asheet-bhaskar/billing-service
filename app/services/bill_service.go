@@ -3,28 +3,57 @@ package service
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
 )
 
 type billService struct {
-	repository repository.BillRepository
+	repository         repository.BillRepository
+	currencyRepository repository.CurrencyRepository
+	customerRepository repository.CustomerRepository
 }
 
 type BillService interface {
-	Create(context.Context, *models.Bill) (*models.Bill, error)
+	Create(context.Context, *models.BillRequest) (*models.Bill, error)
 	GetByID(context.Context, int64) (*models.Bill, error)
 }
 
-func NewBillService(repository repository.BillRepository) BillService {
+func NewBillService(repository repository.BillRepository, currencyRepository repository.CurrencyRepository, customerRepository repository.CustomerRepository) BillService {
 	return &billService{
-		repository: repository,
+		repository:         repository,
+		currencyRepository: currencyRepository,
+		customerRepository: customerRepository,
 	}
 }
 
-func (cs *billService) Create(ctx context.Context, bill *models.Bill) (*models.Bill, error) {
-	bill, err := cs.repository.Create(ctx, bill)
+func (bs *billService) Create(ctx context.Context, request *models.BillRequest) (*models.Bill, error) {
+	currency, err := bs.currencyRepository.GetByCode(ctx, request.CurrencyCode)
+	if err != nil {
+		log.Printf("error while finding the currency for code %s\n", request.CurrencyCode)
+		return &models.Bill{}, err
+	}
+
+	customer, err := bs.customerRepository.GetByID(ctx, request.CustomerID)
+
+	if err != nil {
+		log.Printf("error while finding the customer for id %d\n", request.CustomerID)
+		return &models.Bill{}, err
+	}
+	bill := &models.Bill{
+		Description: request.Description,
+		CustomerID:  customer.ID,
+		CurrencyID:  currency.ID,
+		Status:      "open",
+		TotalAmount: 0.0,
+		PeriodStart: request.PeriodStart,
+		PeriodEnd:   request.PeriodEnd,
+		CreatedAt:   time.Now().UTC(),
+		UpdatedAt:   time.Now().UTC(),
+	}
+
+	bill, err = bs.repository.Create(ctx, bill)
 	if err != nil {
 		log.Printf("error occured while creating bill. error %s\n", err.Error())
 		return &models.Bill{}, err
@@ -33,8 +62,8 @@ func (cs *billService) Create(ctx context.Context, bill *models.Bill) (*models.B
 	return bill, nil
 }
 
-func (cs *billService) GetByID(ctx context.Context, id int64) (*models.Bill, error) {
-	bill, err := cs.repository.GetByID(ctx, id)
+func (bs *billService) GetByID(ctx context.Context, id int64) (*models.Bill, error) {
+	bill, err := bs.repository.GetByID(ctx, id)
 	if err != nil {
 		log.Printf("error occured while fetching bill with id %d. error %s\n", id, err.Error())
 		return &models.Bill{}, err

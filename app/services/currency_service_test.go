@@ -7,39 +7,20 @@ import (
 	"time"
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
-	"github.com/stretchr/testify/mock"
+	"github.com/asheet-bhaskar/billing-service/db/repository"
 	"github.com/stretchr/testify/suite"
 )
 
-type MockCurrencyRepository struct {
-	mock.Mock
-}
-
-func (m *MockCurrencyRepository) Create(ctx context.Context, currency *models.Currency) (*models.Currency, error) {
-	args := m.Called(ctx, currency)
-	return args.Get(0).(*models.Currency), args.Error(1)
-}
-
-func (m *MockCurrencyRepository) GetByID(ctx context.Context, id int64) (*models.Currency, error) {
-	args := m.Called(ctx, id)
-	return args.Get(0).(*models.Currency), args.Error(1)
-}
-
-func (m *MockCurrencyRepository) GetByCode(ctx context.Context, id string) (*models.Currency, error) {
-	args := m.Called(ctx, id)
-	return args.Get(0).(*models.Currency), args.Error(1)
-}
-
 type CurrencyServiceTestSuite struct {
 	suite.Suite
-	MockRepo *MockCurrencyRepository
+	MockRepo *repository.MockCurrencyRepository
 	cs       CurrencyService
 	currency *models.Currency
 }
 
 func (suite *CurrencyServiceTestSuite) SetupTest() {
 
-	mockRepo := new(MockCurrencyRepository)
+	mockRepo := new(repository.MockCurrencyRepository)
 	suite.MockRepo = mockRepo
 	suite.cs = NewCurrencyService(mockRepo)
 
