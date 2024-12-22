@@ -5,9 +5,7 @@ import (
 	"testing"
 	"time"
 
-	billModels "github.com/asheet-bhaskar/billing-service/app/services/bill"
-	currencyModels "github.com/asheet-bhaskar/billing-service/app/services/currency"
-	customerModels "github.com/asheet-bhaskar/billing-service/app/services/customer"
+	"github.com/asheet-bhaskar/billing-service/app/models"
 	database "github.com/asheet-bhaskar/billing-service/db"
 	"github.com/stretchr/testify/suite"
 )
@@ -17,9 +15,9 @@ type BillRepositoryTestSuite struct {
 	br       billRepository
 	csr      customerRepository
 	crr      currencyRepository
-	bill     *billModels.Bill
-	customer *customerModels.Customer
-	currency *currencyModels.Currency
+	bill     *models.Bill
+	customer *models.Customer
+	currency *models.Currency
 }
 
 func (suite *BillRepositoryTestSuite) SetupTest() {
@@ -29,7 +27,7 @@ func (suite *BillRepositoryTestSuite) SetupTest() {
 	suite.br = NewBillRepository(dbClient.DB)
 	suite.csr = NewCustomerRepository(dbClient.DB)
 	suite.crr = NewCurrencyRepository(dbClient.DB)
-	suite.bill = &billModels.Bill{
+	suite.bill = &models.Bill{
 		Description: "Bill 01",
 		CustomerID:  1,
 		CurrencyID:  1,
@@ -41,7 +39,7 @@ func (suite *BillRepositoryTestSuite) SetupTest() {
 		UpdatedAt:   time.Now().UTC(),
 	}
 
-	suite.customer = &customerModels.Customer{
+	suite.customer = &models.Customer{
 		FirstName: "John",
 		LastName:  "Jacobs",
 		Email:     "john.jacon@mail.com",
@@ -49,7 +47,7 @@ func (suite *BillRepositoryTestSuite) SetupTest() {
 		UpdatedAt: time.Now().UTC(),
 	}
 
-	suite.currency = &currencyModels.Currency{
+	suite.currency = &models.Currency{
 		Code:      "USD",
 		Name:      "United states dollar",
 		Symbol:    "$",
@@ -85,16 +83,6 @@ func (suite *BillRepositoryTestSuite) Test_CreateBillWhenSucceeds() {
 	suite.Nil(err, "error should be nil")
 	suite.NotNil(bill.ID)
 }
-
-// func (suite *BillRepositoryTestSuite) Test_GetCurrencyByIDWhenSucceeds() {
-// 	currencyRecord, err := suite.br.GetByID(context.Background(), 1)
-
-// 	suite.Nil(err, "error should be nil")
-// 	suite.Equal(int64(1), currencyRecord.ID)
-// 	suite.Equal("USD", currencyRecord.Code)
-// 	suite.Equal("United states dollar", currencyRecord.Name)
-// 	suite.Equal("$", currencyRecord.Symbol)
-// }
 
 func TestBillRepositoryTestSuite(t *testing.T) {
 	suite.Run(t, new(BillRepositoryTestSuite))

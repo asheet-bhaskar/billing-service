@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	models "github.com/asheet-bhaskar/billing-service/app/services/currency"
+	"github.com/asheet-bhaskar/billing-service/app/models"
 	database "github.com/asheet-bhaskar/billing-service/db"
 	"github.com/stretchr/testify/suite"
 )

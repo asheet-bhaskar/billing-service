@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	models "github.com/asheet-bhaskar/billing-service/app/services/customer"
+	"github.com/asheet-bhaskar/billing-service/app/models"
 	"gorm.io/gorm"
 )
 
