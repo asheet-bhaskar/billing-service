@@ -56,19 +56,6 @@ func (suite *BillRepositoryTestSuite) SetupTest() {
 	}
 }
 
-type Bill struct {
-	ID          int64
-	Description string
-	CustomerID  int64
-	CurrencyID  string
-	Status      string
-	TotalAmount float64
-	PeriodStart time.Time
-	PeriodEnd   time.Time
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-}
-
 func (suite *BillRepositoryTestSuite) Test_CreateBillWhenSucceeds() {
 	customer, err := suite.csr.Create(context.Background(), suite.customer)
 	suite.Nil(err, "error should be nil")

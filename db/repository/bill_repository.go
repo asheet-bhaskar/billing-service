@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
+	ce "github.com/asheet-bhaskar/billing-service/pkg/error"
 	"gorm.io/gorm"
 )
 
@@ -37,6 +38,11 @@ func (br *billRepository) Create(ctx context.Context, bill *models.Bill) (*model
 func (br *billRepository) GetByID(ctx context.Context, id int64) (*models.Bill, error) {
 	bill := &models.Bill{}
 	result := br.db.First(&bill, id)
+
+	if result.Error == gorm.ErrRecordNotFound {
+		log.Printf("bill does not exist for id, %d. error is %s", id, result.Error.Error())
+		return bill, ce.BillNotFoundError
+	}
 
 	if result.Error != nil {
 		log.Printf("error occured while querying bill, %d. error is %s", id, result.Error.Error())
