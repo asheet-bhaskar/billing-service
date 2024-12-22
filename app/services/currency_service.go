@@ -26,7 +26,7 @@ func NewCurrencyService(repository repository.CurrencyRepository) CurrencyServic
 func (cs *currencyService) Create(ctx context.Context, currency *models.Currency) (*models.Currency, error) {
 	currency, err := cs.repository.Create(ctx, currency)
 	if err != nil {
-		log.Printf("error occured while creating custome. error %s\n", err.Error())
+		log.Printf("error occured while creating currency. error %s\n", err.Error())
 		return &models.Currency{}, err
 	}
 
@@ -36,7 +36,7 @@ func (cs *currencyService) Create(ctx context.Context, currency *models.Currency
 func (cs *currencyService) GetByID(ctx context.Context, id int64) (*models.Currency, error) {
 	currency, err := cs.repository.GetByID(ctx, id)
 	if err != nil {
-		log.Printf("error occured while fetching customer with id %d. error %s\n", id, err.Error())
+		log.Printf("error occured while fetching currency with id %d. error %s\n", id, err.Error())
 		return &models.Currency{}, err
 	}
 
