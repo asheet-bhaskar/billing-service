@@ -15,7 +15,7 @@ type currencyRepository struct {
 
 type CurrencyRepository interface {
 	Create(context.Context, *models.Currency) (*models.Currency, error)
-	GetByID(context.Context, int64) (*models.Currency, error)
+	GetByID(context.Context, string) (*models.Currency, error)
 	GetByCode(context.Context, string) (*models.Currency, error)
 }
 
@@ -36,17 +36,17 @@ func (cr *currencyRepository) Create(ctx context.Context, currency *models.Curre
 	return currency, nil
 }
 
-func (cr *currencyRepository) GetByID(ctx context.Context, id int64) (*models.Currency, error) {
+func (cr *currencyRepository) GetByID(ctx context.Context, id string) (*models.Currency, error) {
 	currency := &models.Currency{}
-	result := cr.db.First(&currency, id)
+	result := cr.db.Where("id = ?", id).Find(&currency)
 
 	if result.Error == gorm.ErrRecordNotFound {
-		log.Printf("currency not found for id %d\n", id)
+		log.Printf("currency not found for id %s\n", id)
 		return currency, ce.CurrencyNotFoundError
 	}
 
 	if result.Error != nil {
-		log.Printf("error occured while querying currency, %d. error is %s", id, result.Error.Error())
+		log.Printf("error occured while querying currency, %s. error is %s", id, result.Error.Error())
 		return currency, result.Error
 	}
 
@@ -55,7 +55,7 @@ func (cr *currencyRepository) GetByID(ctx context.Context, id int64) (*models.Cu
 
 func (cr *currencyRepository) GetByCode(ctx context.Context, code string) (*models.Currency, error) {
 	currency := &models.Currency{}
-	result := cr.db.Where("code = ?", code).First(&currency)
+	result := cr.db.Where("code = ?", code).Find(&currency)
 
 	if result.Error == gorm.ErrRecordNotFound {
 		log.Printf("currency not found for code %s\n", code)

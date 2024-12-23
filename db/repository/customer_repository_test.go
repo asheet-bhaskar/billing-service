@@ -7,6 +7,7 @@ import (
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
 	database "github.com/asheet-bhaskar/billing-service/db"
+	"github.com/asheet-bhaskar/billing-service/pkg/utils"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -22,6 +23,7 @@ func (suite *CustomerRepositoryTestSuite) SetupTest() {
 
 	suite.cr = NewCustomerRepository(dbClient.DB)
 	suite.customer = &models.Customer{
+		ID:        utils.GetNewUUID(),
 		FirstName: "John",
 		LastName:  "Jacobs",
 		Email:     "john.jacon@mail.com",
@@ -31,16 +33,17 @@ func (suite *CustomerRepositoryTestSuite) SetupTest() {
 }
 
 func (suite *CustomerRepositoryTestSuite) Test_CreateCustomerWhenSucceeds() {
-	customer, err := suite.cr.Create(context.Background(), suite.customer)
+	_, err := suite.cr.Create(context.Background(), suite.customer)
 	suite.Nil(err, "error should be nil")
-	suite.NotNil(customer.ID)
 }
 
 func (suite *CustomerRepositoryTestSuite) Test_GetCustomerByIDWhenSucceeds() {
-	customerRecord, err := suite.cr.GetByID(context.Background(), 1)
+	_, err := suite.cr.Create(context.Background(), suite.customer)
+	suite.Nil(err, "error should be nil")
+
+	customerRecord, err := suite.cr.GetByID(context.Background(), suite.customer.ID)
 
 	suite.Nil(err, "error should be nil")
-	suite.Equal(int64(1), customerRecord.ID)
 	suite.Equal(suite.customer.FirstName, customerRecord.FirstName)
 	suite.Equal(suite.customer.LastName, customerRecord.LastName)
 	suite.Equal(suite.customer.Email, customerRecord.Email)

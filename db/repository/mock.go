@@ -29,6 +29,23 @@ func (m *MockBillRepository) GetByID(ctx context.Context, id int64) (*models.Bil
 	return args.Get(0).(*models.Bill), args.Error(1)
 }
 
+func (m *MockBillRepository) AddLineItems(ctx context.Context, lineItem *models.LineItem) (*models.LineItem, error) {
+	args := m.Called(ctx, lineItem)
+	return args.Get(0).(*models.LineItem), args.Error(1)
+}
+func (m *MockBillRepository) RemoveLineItems(ctx context.Context, lineItem *models.LineItem) (*models.LineItem, error) {
+	args := m.Called(ctx, lineItem)
+	return args.Get(0).(*models.LineItem), args.Error(1)
+}
+func (m *MockBillRepository) GetLineItemsByBillID(ctx context.Context, id int64) ([]*models.LineItem, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).([]*models.LineItem), args.Error(1)
+}
+func (m *MockBillRepository) Close(ctx context.Context, id int64) (*models.Bill, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(*models.Bill), args.Error(1)
+}
+
 func (m *MockCurrencyRepository) Create(ctx context.Context, currency *models.Currency) (*models.Currency, error) {
 	args := m.Called(ctx, currency)
 	return args.Get(0).(*models.Currency), args.Error(1)

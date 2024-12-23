@@ -15,7 +15,7 @@ type customerRepository struct {
 
 type CustomerRepository interface {
 	Create(context.Context, *models.Customer) (*models.Customer, error)
-	GetByID(context.Context, int64) (*models.Customer, error)
+	GetByID(context.Context, string) (*models.Customer, error)
 }
 
 func NewCustomerRepository(dbClient *gorm.DB) CustomerRepository {
@@ -35,17 +35,17 @@ func (cr *customerRepository) Create(ctx context.Context, customer *models.Custo
 	return customer, nil
 }
 
-func (cr *customerRepository) GetByID(ctx context.Context, id int64) (*models.Customer, error) {
+func (cr *customerRepository) GetByID(ctx context.Context, id string) (*models.Customer, error) {
 	customer := &models.Customer{}
-	result := cr.db.First(&customer, id)
+	result := cr.db.Where("id = ?", id).Find(&customer)
 
 	if result.Error == gorm.ErrRecordNotFound {
-		log.Printf("customer not found for id %d\n", id)
+		log.Printf("customer not found for id %s\n", id)
 		return customer, ce.CustomerNotFoundError
 	}
 
 	if result.Error != nil {
-		log.Printf("error occured while querying customer, %d. error is %s", id, result.Error.Error())
+		log.Printf("error occured while querying customer, %s. error is %s", id, result.Error.Error())
 		return customer, result.Error
 	}
 
