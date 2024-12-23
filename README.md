@@ -1,5 +1,5 @@
 ##  Billing Service
-Go application to manages the billing lifecycle and workflows. 
+Go application that manages the billing lifecycle and workflows. 
 
 ### Dependencies 
 * [golang](https://go.dev/doc/install), version 1.22.5
