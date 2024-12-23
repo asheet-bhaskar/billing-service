@@ -172,3 +172,41 @@ func (bs *BillingService) RemoveLineItemsHandler(ctx context.Context, billID str
 
 	return item, nil
 }
+
+// encore:api method=GET path=/bills/:id/invoice
+func (bs *BillingService) GetInvoiceHandler(ctx context.Context, id string) (*models.Invoice, error) {
+	if id == "" {
+		log.Println("invalid bill id")
+		return &models.Invoice{}, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "invalid bill id",
+		}
+	}
+	invoice, err := bs.Bill.Invoice(ctx, id)
+
+	if err == ce.BillNotFoundError {
+		log.Printf("bill not found for id %s\n", id)
+		return &models.Invoice{}, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "bill not found",
+		}
+	}
+
+	if err == ce.CurrencyNotFoundError {
+		log.Printf("currency not found for id %s\n", id)
+		return &models.Invoice{}, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "currency not found",
+		}
+	}
+
+	if err != nil {
+		log.Printf("error occurred while fetching bill for is %s\n", id)
+		return &models.Invoice{}, &errs.Error{
+			Code:    errs.Unknown,
+			Message: "failed to find bill",
+		}
+	}
+
+	return invoice, nil
+}
