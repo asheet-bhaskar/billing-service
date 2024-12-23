@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
+	tc "github.com/asheet-bhaskar/billing-service/app/workflows/temporal"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
 	ce "github.com/asheet-bhaskar/billing-service/pkg/error"
 	"github.com/asheet-bhaskar/billing-service/pkg/utils"
@@ -16,14 +17,16 @@ import (
 
 type BillServiceTestSuite struct {
 	suite.Suite
-	BillMockRepo     *repository.MockBillRepository
-	CustomerMockRepo *repository.MockCustomerRepository
-	CurrencyMockRepo *repository.MockCurrencyRepository
-	bs               BillService
-	billRequest      *models.BillRequest
-	bill             *models.Bill
-	currencyID       string
-	customerID       string
+	BillMockRepo       *repository.MockBillRepository
+	CustomerMockRepo   *repository.MockCustomerRepository
+	CurrencyMockRepo   *repository.MockCurrencyRepository
+	TemporalClientMock *tc.MockTemporalClient
+	WorkflowRunMock    *tc.MockWorkflowRun
+	bs                 BillService
+	billRequest        *models.BillRequest
+	bill               *models.Bill
+	currencyID         string
+	customerID         string
 }
 
 func (suite *BillServiceTestSuite) SetupTest() {
@@ -31,12 +34,16 @@ func (suite *BillServiceTestSuite) SetupTest() {
 	billMockRepo := new(repository.MockBillRepository)
 	customerMockRepo := new(repository.MockCustomerRepository)
 	currencyMockRepo := new(repository.MockCurrencyRepository)
+	temporalClientMock := new(tc.MockTemporalClient)
+	workflowRunMock := new(tc.MockWorkflowRun)
 
 	suite.BillMockRepo = billMockRepo
 	suite.CustomerMockRepo = customerMockRepo
 	suite.CurrencyMockRepo = currencyMockRepo
+	suite.TemporalClientMock = temporalClientMock
+	suite.WorkflowRunMock = workflowRunMock
 
-	suite.bs = NewBillService(billMockRepo, currencyMockRepo, customerMockRepo)
+	suite.bs = NewBillService(billMockRepo, currencyMockRepo, customerMockRepo, temporalClientMock)
 	currencyID := utils.GetNewUUID()
 	customerID := utils.GetNewUUID()
 
@@ -79,6 +86,7 @@ func (suite *BillServiceTestSuite) Test_CreateBillReturnsNilErrorWhenSucceeds() 
 	suite.CustomerMockRepo.On("GetByID", ctx, suite.customerID).Return(&models.Customer{}, nil)
 	suite.CurrencyMockRepo.On("GetByCode", ctx, "USD").Return(&models.Currency{ID: suite.currencyID}, nil)
 	suite.BillMockRepo.On("Create", ctx, mock.Anything).Return(&models.Bill{}, nil)
+	suite.TemporalClientMock.On("ExecuteWorkflow", ctx, mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {})
 
 	bill, err := suite.bs.Create(ctx, suite.billRequest)
 
@@ -177,6 +185,7 @@ func (suite *BillServiceTestSuite) Test_AddLineItemSucceeds() {
 	ctx := context.Background()
 	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(suite.bill, nil)
 	suite.BillMockRepo.On("AddLineItems", ctx, mock.Anything).Return(lineItem, nil)
+	suite.TemporalClientMock.On("SignalWorkflow", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	lineItemSaved, err := suite.bs.AddLineItems(ctx, lineItem)
 	suite.Require().Nil(err)
@@ -258,6 +267,7 @@ func (suite *BillServiceTestSuite) Test_RemoveLineItemSucceeds() {
 	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(suite.bill, nil)
 	suite.BillMockRepo.On("RemoveLineItems", ctx, mock.Anything).Return(lineItem, nil)
 	suite.BillMockRepo.On("GetLineItemByID", ctx, mock.Anything).Return(lineItem, nil)
+	suite.TemporalClientMock.On("SignalWorkflow", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	lineItemSaved, err := suite.bs.RemoveLineItems(ctx, "", lineItem.ID)
 	suite.Require().Nil(err)

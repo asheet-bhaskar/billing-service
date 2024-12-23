@@ -8,6 +8,7 @@ import (
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
 	"github.com/asheet-bhaskar/billing-service/app/workflows"
+	tc "github.com/asheet-bhaskar/billing-service/app/workflows/temporal"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
 	ce "github.com/asheet-bhaskar/billing-service/pkg/error"
 	"github.com/asheet-bhaskar/billing-service/pkg/utils"
@@ -18,7 +19,7 @@ type billService struct {
 	repository         repository.BillRepository
 	currencyRepository repository.CurrencyRepository
 	customerRepository repository.CustomerRepository
-	temporalClient     client.Client
+	temporalClient     tc.TemporalClient
 }
 
 type BillService interface {
@@ -31,7 +32,7 @@ type BillService interface {
 }
 
 func NewBillService(repository repository.BillRepository, currencyRepository repository.CurrencyRepository,
-	customerRepository repository.CustomerRepository, temporalClient client.Client) BillService {
+	customerRepository repository.CustomerRepository, temporalClient tc.TemporalClient) BillService {
 	return &billService{
 		repository:         repository,
 		currencyRepository: currencyRepository,
@@ -78,12 +79,10 @@ func (bs *billService) Create(ctx context.Context, request *models.BillRequest) 
 		TaskQueue: "CREATE_BILL_QUEUE",
 	}
 
-	we, err := bs.temporalClient.ExecuteWorkflow(context.Background(), options, workflows.BillingWorkflow, bill)
+	_, err = bs.temporalClient.ExecuteWorkflow(context.Background(), options, workflows.BillingWorkflow, bill)
 	if err != nil {
 		log.Printf("failed to create workflow execution for bill id %s", bill.ID)
 	}
-
-	log.Printf("started workflow. ID - %s", we.GetID())
 
 	return bill, nil
 }
