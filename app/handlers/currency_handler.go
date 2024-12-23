@@ -10,8 +10,8 @@ import (
 )
 
 // encore:api method=GET path=/currencies/:id
-func (bs *BillingService) GetCurrencyHandler(ctx context.Context, id int64) (*models.Currency, error) {
-	if id <= 0 {
+func (bs *BillingService) GetCurrencyHandler(ctx context.Context, id string) (*models.Currency, error) {
+	if id == "" {
 		log.Println("invalid currency id")
 		return &models.Currency{}, &errs.Error{
 			Code:    errs.InvalidArgument,
@@ -21,7 +21,7 @@ func (bs *BillingService) GetCurrencyHandler(ctx context.Context, id int64) (*mo
 	currency, err := bs.Currency.GetByID(ctx, id)
 
 	if err == ce.CurrencyNotFoundError {
-		log.Printf("currency not found for id %d\n", id)
+		log.Printf("currency not found for id %s\n", id)
 		return &models.Currency{}, &errs.Error{
 			Code:    errs.NotFound,
 			Message: "currency not found",
@@ -29,7 +29,7 @@ func (bs *BillingService) GetCurrencyHandler(ctx context.Context, id int64) (*mo
 	}
 
 	if err != nil {
-		log.Printf("error occurred while fetching currency for id %d\n", id)
+		log.Printf("error occurred while fetching currency for id %s\n", id)
 		return &models.Currency{}, &errs.Error{
 			Code:    errs.Unknown,
 			Message: "failed to get currency",
