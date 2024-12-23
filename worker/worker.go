@@ -8,16 +8,6 @@ import (
 	"go.temporal.io/sdk/worker"
 )
 
-// func main() {
-// 	temporalClient, err := client.NewClient(client.Options{})
-// 	if err != nil {
-// 		log.Fatal("Failed to start temporal")
-// 	}
-// 	log.Println("starting temporal worker")
-
-// 	Start(temporalClient)
-// }
-
 func Start(temporalClient client.Client) {
 
 	w := worker.New(temporalClient, "CREATE_BILL_QUEUE", worker.Options{})
