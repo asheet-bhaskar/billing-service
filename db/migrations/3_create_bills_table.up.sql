@@ -1,8 +1,8 @@
 CREATE TABLE bills (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(36) PRIMARY KEY,
     description VARCHAR(100) NOT NULL,
-    customer_id SERIAL NOT NULL,
-    currency_id SERIAL NOT NULL,
+    customer_id VARCHAR(36) NOT NULL,
+    currency_id VARCHAR(36) NOT NULL,
     status VARCHAR(20) NOT NULL CHECK (status IN ('open', 'closed')),
     total_amount DECIMAL(18, 2) DEFAULT 0.00,
     period_start TIMESTAMP NOT NULL,

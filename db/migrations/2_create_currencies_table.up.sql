@@ -1,5 +1,5 @@
 CREATE TABLE currencies (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(36) PRIMARY KEY,
     code CHAR(3) NOT NULL UNIQUE,
     name VARCHAR(50) NOT NULL,
     symbol VARCHAR(10) NOT NULL,

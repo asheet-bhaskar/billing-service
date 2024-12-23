@@ -1,6 +1,6 @@
 CREATE TABLE line_items (
-    id SERIAL PRIMARY KEY,
-    bill_id INT NOT NULL,
+    id VARCHAR(36) PRIMARY KEY,
+    bill_id VARCHAR(36) NOT NULL,
     description TEXT NOT NULL,
     amount DECIMAL(18, 2) NOT NULL CHECK (amount >= 0),
     created_at TIMESTAMP DEFAULT timezone('UTC', NOW()),
