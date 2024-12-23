@@ -124,8 +124,27 @@ func (bs *billService) RemoveLineItems(ctx context.Context, lineItem *models.Lin
 	return lineItem, nil
 }
 
-func (bs *billService) Close(context.Context, string) (*models.Bill, error) {
-	return &models.Bill{}, nil
+func (bs *billService) Close(ctx context.Context, billID string) (*models.Bill, error) {
+	bill, err := bs.repository.GetByID(ctx, billID)
+
+	if err == ce.BillNotFoundError || err != nil {
+		log.Printf("bill not found for id %s\n", billID)
+		return bill, err
+	}
+
+	if bill.Status == "closed" {
+		log.Printf("bill is already closed for id %s\n", billID)
+		return bill, ce.BillClosedError
+	}
+
+	bill, err = bs.repository.Close(ctx, billID)
+
+	if err != nil {
+		log.Printf("error while closing bill id %s. error is %s\n", billID, err.Error())
+		return bill, err
+	}
+
+	return bill, nil
 }
 
 func (bs *billService) Invoice(context.Context, string) (*models.Invoice, error) {

@@ -260,6 +260,56 @@ func (suite *BillServiceTestSuite) Test_RemoveLineItemSucceeds() {
 	suite.Require().Equal(lineItem, lineItemSaved)
 }
 
+func (suite *BillServiceTestSuite) Test_CloseBillFailsWhenBillNotFound() {
+	bill := *suite.bill
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&models.Bill{}, ce.BillNotFoundError)
+
+	_, err := suite.bs.Close(ctx, bill.ID)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(ce.BillNotFoundError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_CloseBillFailsWhenBillIsClosed() {
+	bill := *suite.bill
+	bill.Status = "closed"
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, nil)
+
+	_, err := suite.bs.Close(ctx, bill.ID)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(ce.BillClosedError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_CloseBillFailsWhenErrorIsOccurred() {
+	bill := *suite.bill
+	testError := errors.New("test error")
+	ctx := context.Background()
+
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, nil)
+	suite.BillMockRepo.On("Close", ctx, mock.Anything).Return(&bill, testError)
+
+	_, err := suite.bs.Close(ctx, bill.ID)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(testError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_CloseBillSucceeds() {
+	bill := *suite.bill
+	closedBill := *suite.bill
+	closedBill.Status = "closed"
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, nil)
+	suite.BillMockRepo.On("Close", ctx, mock.Anything).Return(&closedBill, nil)
+
+	billActual, err := suite.bs.Close(ctx, suite.bill.ID)
+	suite.Require().Nil(err)
+	suite.Require().Equal("closed", billActual.Status)
+}
+
 func TestBillServiceTestSuite(t *testing.T) {
 	suite.Run(t, new(BillServiceTestSuite))
 }
