@@ -2,19 +2,23 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
+	"github.com/asheet-bhaskar/billing-service/app/workflows"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
 	ce "github.com/asheet-bhaskar/billing-service/pkg/error"
 	"github.com/asheet-bhaskar/billing-service/pkg/utils"
+	"go.temporal.io/sdk/client"
 )
 
 type billService struct {
 	repository         repository.BillRepository
 	currencyRepository repository.CurrencyRepository
 	customerRepository repository.CustomerRepository
+	temporalClient     client.Client
 }
 
 type BillService interface {
@@ -26,11 +30,13 @@ type BillService interface {
 	Invoice(ctx context.Context, billID string) (*models.Invoice, error)
 }
 
-func NewBillService(repository repository.BillRepository, currencyRepository repository.CurrencyRepository, customerRepository repository.CustomerRepository) BillService {
+func NewBillService(repository repository.BillRepository, currencyRepository repository.CurrencyRepository,
+	customerRepository repository.CustomerRepository, temporalClient client.Client) BillService {
 	return &billService{
 		repository:         repository,
 		currencyRepository: currencyRepository,
 		customerRepository: customerRepository,
+		temporalClient:     temporalClient,
 	}
 }
 
@@ -66,6 +72,19 @@ func (bs *billService) Create(ctx context.Context, request *models.BillRequest) 
 		return &models.Bill{}, err
 	}
 
+	workflowID := fmt.Sprintf("BILL-%s", bill.ID)
+	options := client.StartWorkflowOptions{
+		ID:        workflowID,
+		TaskQueue: "CREATE_BILL_QUEUE",
+	}
+
+	we, err := bs.temporalClient.ExecuteWorkflow(context.Background(), options, workflows.BillingWorkflow, bill)
+	if err != nil {
+		log.Printf("failed to create workflow execution for bill id %s", bill.ID)
+	}
+
+	log.Printf("started workflow. ID - %s", we.GetID())
+
 	return bill, nil
 }
 
@@ -97,6 +116,16 @@ func (bs *billService) AddLineItems(ctx context.Context, lineItem *models.LineIt
 	if err != nil {
 		log.Printf("error while adding line item %v. error is %s\n", lineItem, err.Error())
 		return lineItem, err
+	}
+
+	signal := workflows.LineItemSignal{
+		BillID: bill.ID,
+		ItemID: lineItem.ID,
+	}
+
+	err = bs.temporalClient.SignalWorkflow(context.Background(), fmt.Sprintf("BILL-%s", bill.ID), "", "ADD_BILL_ITEM_CHANNEL", signal)
+	if err != nil {
+		log.Println("Error while signalling the workflow", err)
 	}
 
 	return lineItem, nil
@@ -132,6 +161,16 @@ func (bs *billService) RemoveLineItems(ctx context.Context, billID string, itemI
 	if err != nil {
 		log.Printf("error while removing line item %v. error is %s\n", lineItem, err.Error())
 		return lineItemUpdated, err
+	}
+
+	signal := workflows.LineItemSignal{
+		BillID: bill.ID,
+		ItemID: lineItemUpdated.ID,
+	}
+
+	err = bs.temporalClient.SignalWorkflow(context.Background(), fmt.Sprintf("BILL-%s", bill.ID), "", "REMOVE_BILL_ITEM_CHANNEL", signal)
+	if err != nil {
+		log.Println("Error while signalling the workflow", err)
 	}
 
 	return lineItemUpdated, nil
