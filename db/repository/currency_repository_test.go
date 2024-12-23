@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -9,18 +10,27 @@ import (
 	database "github.com/asheet-bhaskar/billing-service/db"
 	"github.com/asheet-bhaskar/billing-service/pkg/utils"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 )
 
 type CurrencyRepositoryTestSuite struct {
 	suite.Suite
-	cr CurrencyRepository
+	dbClient *gorm.DB
+	cr       CurrencyRepository
 }
 
 func (suite *CurrencyRepositoryTestSuite) SetupTest() {
 	dbClient, err := database.InitDBClient()
 	suite.Nil(err, "error should be nil")
 
+	suite.dbClient = dbClient.TestDB
+
 	suite.cr = NewCurrencyRepository(dbClient.DB)
+}
+
+func (suite *CurrencyRepositoryTestSuite) TearDownSuite() {
+	fmt.Printf("cleaning up db records")
+	suite.dbClient.Exec("DELETE FROM currencies")
 }
 
 func (suite *CurrencyRepositoryTestSuite) Test_CreateCurrencyWhenSucceeds() {

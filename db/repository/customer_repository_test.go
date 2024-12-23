@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -9,10 +10,12 @@ import (
 	database "github.com/asheet-bhaskar/billing-service/db"
 	"github.com/asheet-bhaskar/billing-service/pkg/utils"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 )
 
 type CustomerRepositoryTestSuite struct {
 	suite.Suite
+	dbClient *gorm.DB
 	cr       CustomerRepository
 	customer *models.Customer
 }
@@ -20,6 +23,8 @@ type CustomerRepositoryTestSuite struct {
 func (suite *CustomerRepositoryTestSuite) SetupTest() {
 	dbClient, err := database.InitDBClient()
 	suite.Nil(err, "error should be nil")
+
+	suite.dbClient = dbClient.TestDB
 
 	suite.cr = NewCustomerRepository(dbClient.DB)
 	suite.customer = &models.Customer{
@@ -30,6 +35,11 @@ func (suite *CustomerRepositoryTestSuite) SetupTest() {
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
 	}
+}
+
+func (suite *CustomerRepositoryTestSuite) TearDownSuite() {
+	fmt.Printf("cleaning up db records")
+	suite.dbClient.Exec("DELETE FROM customers")
 }
 
 func (suite *CustomerRepositoryTestSuite) Test_CreateCustomerWhenSucceeds() {
