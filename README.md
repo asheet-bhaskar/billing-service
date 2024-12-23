@@ -77,11 +77,3 @@ curl -X PUT 'localhost:4000/bills/:id/close'
 curl -X GET 'localhost:4000/bills/:id/invoice'
 ```
 
-### Further Improvements
-* Create distinction among request and corresponding models, like bill and billRequest
-* Make application dependencies configurable
-  * temporal server
-  * postgresql
-  * etc
-* Add integration tests
-
