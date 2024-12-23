@@ -69,7 +69,10 @@ func (br *billRepository) AddLineItems(ctx context.Context, lineItem *models.Lin
 }
 
 func (br *billRepository) RemoveLineItems(ctx context.Context, lineItem *models.LineItem) (*models.LineItem, error) {
-	result := br.db.Model(&lineItem).Update("removed", true)
+	lineItem.Removed = true
+	log.Printf("removing line item %v\n", lineItem)
+	// result := br.db.Save(lineItem)
+	result := br.db.Model(&lineItem).Where("id = ?", lineItem.ID).Update("removed", true)
 
 	if result.Error != nil {
 		log.Printf("error occured while removing lineItem, %v. error is %s", lineItem, result.Error.Error())

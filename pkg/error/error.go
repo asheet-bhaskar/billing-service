@@ -10,5 +10,6 @@ var CurrencyNotFoundError = errors.New("Currency not found")
 
 var BillAlreadyExistError = errors.New("Bill already exist")
 var LineItemAlreadyExistError = errors.New("Line item already exist")
+var LineItemAlreadyRemovedError = errors.New("Line item already exist")
 var CustomerAlreadyExistError = errors.New("Customer already exist")
 var CurrencyAlreadyExistError = errors.New("Currency already exist")

@@ -6,6 +6,7 @@ import (
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
+	"github.com/asheet-bhaskar/billing-service/pkg/utils"
 )
 
 type customerService struct {
@@ -24,6 +25,7 @@ func NewCustomerService(repository repository.CustomerRepository) CustomerServic
 }
 
 func (cs *customerService) Create(ctx context.Context, customer *models.Customer) (*models.Customer, error) {
+	customer.ID = utils.GetNewUUID()
 	customer, err := cs.repository.Create(ctx, customer)
 	if err != nil {
 		log.Printf("error occured while creating custome. error %s\n", err.Error())

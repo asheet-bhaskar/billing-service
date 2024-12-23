@@ -81,7 +81,6 @@ func (bs *billService) GetByID(ctx context.Context, id string) (*models.Bill, er
 
 func (bs *billService) AddLineItems(ctx context.Context, lineItem *models.LineItem) (*models.LineItem, error) {
 	bill, err := bs.repository.GetByID(ctx, lineItem.BillID)
-
 	if err == ce.BillNotFoundError || err != nil {
 		log.Printf("bill not found for id %s\n", lineItem.BillID)
 		return lineItem, err
@@ -92,6 +91,7 @@ func (bs *billService) AddLineItems(ctx context.Context, lineItem *models.LineIt
 		return lineItem, ce.BillClosedError
 	}
 
+	lineItem.ID = utils.GetNewUUID()
 	lineItem, err = bs.repository.AddLineItems(ctx, lineItem)
 
 	if err != nil {
@@ -110,6 +110,11 @@ func (bs *billService) RemoveLineItems(ctx context.Context, billID string, itemI
 		return &models.LineItem{}, err
 	}
 
+	if lineItem.Removed {
+		log.Printf("line item already for id %s\n", itemID)
+		return &models.LineItem{}, ce.LineItemAlreadyRemovedError
+	}
+
 	bill, err := bs.repository.GetByID(ctx, billID)
 
 	if err == ce.BillNotFoundError || err != nil {
@@ -122,14 +127,14 @@ func (bs *billService) RemoveLineItems(ctx context.Context, billID string, itemI
 		return lineItem, ce.BillClosedError
 	}
 
-	lineItem, err = bs.repository.RemoveLineItems(ctx, lineItem)
+	lineItemUpdated, err := bs.repository.RemoveLineItems(ctx, lineItem)
 
 	if err != nil {
 		log.Printf("error while removing line item %v. error is %s\n", lineItem, err.Error())
-		return lineItem, err
+		return lineItemUpdated, err
 	}
 
-	return lineItem, nil
+	return lineItemUpdated, nil
 }
 
 func (bs *billService) Close(ctx context.Context, billID string) (*models.Bill, error) {

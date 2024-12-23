@@ -6,6 +6,7 @@ import (
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
+	"github.com/asheet-bhaskar/billing-service/pkg/utils"
 )
 
 type currencyService struct {
@@ -24,6 +25,7 @@ func NewCurrencyService(repository repository.CurrencyRepository) CurrencyServic
 }
 
 func (cs *currencyService) Create(ctx context.Context, currency *models.Currency) (*models.Currency, error) {
+	currency.ID = utils.GetNewUUID()
 	currency, err := cs.repository.Create(ctx, currency)
 	if err != nil {
 		log.Printf("error occured while creating currency. error %s\n", err.Error())
