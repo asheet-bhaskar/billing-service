@@ -41,3 +41,10 @@ func (r *BillRequest) IsValid() bool {
 	}
 	return true
 }
+
+func (l *LineItem) IsValid() bool {
+	if l.Description == "" || l.BillID == "" {
+		return false
+	}
+	return true
+}

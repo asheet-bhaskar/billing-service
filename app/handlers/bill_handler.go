@@ -89,11 +89,11 @@ func (bs *APIService) CreateBillHandler(ctx context.Context, request *models.Bil
 
 //encore:api method=POST path=/bills/items
 func (bs *APIService) AddLineItemsHandler(ctx context.Context, lineItem models.LineItem) (*models.LineItem, error) {
-	if lineItem.BillID == "" {
-		log.Println("invalid bill id")
+	if !lineItem.IsValid() {
+		log.Println("invalid line item")
 		return &lineItem, &errs.Error{
 			Code:    errs.InvalidArgument,
-			Message: "invalid bill id",
+			Message: "invalid line item",
 		}
 	}
 
@@ -231,7 +231,7 @@ func (bs *APIService) CloseBillHandler(ctx context.Context, id string) (*models.
 	}
 
 	if err != nil {
-		log.Printf("error occurred while closing bill for is %d\n", id)
+		log.Printf("error occurred while closing bill for is %s\n", id)
 		return &models.Bill{}, &errs.Error{
 			Code:    errs.Unknown,
 			Message: "failed to find bill",
