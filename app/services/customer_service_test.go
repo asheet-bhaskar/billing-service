@@ -8,6 +8,7 @@ import (
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
+	"github.com/asheet-bhaskar/billing-service/pkg/utils"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -25,6 +26,7 @@ func (suite *CustomerServiceTestSuite) SetupTest() {
 	suite.cs = NewCustomerService(mockRepo)
 
 	suite.customer = &models.Customer{
+		ID:        utils.GetNewUUID(),
 		FirstName: "John",
 		LastName:  "Jacobs",
 		Email:     "john.jacon@mail.com",
@@ -55,10 +57,9 @@ func (suite *CustomerServiceTestSuite) Test_CreateCustomerReturnsNilErrorWhenSuc
 
 func (suite *CustomerServiceTestSuite) Test_GetByIDReturnsErrorWhenFails() {
 	ctx := context.Background()
-	customerID := int64(1)
-	suite.MockRepo.On("GetByID", ctx, customerID).Return(&models.Customer{}, errors.New("test-error"))
+	suite.MockRepo.On("GetByID", ctx, suite.customer.ID).Return(&models.Customer{}, errors.New("test-error"))
 
-	customer, err := suite.cs.GetByID(ctx, customerID)
+	customer, err := suite.cs.GetByID(ctx, suite.customer.ID)
 
 	suite.Require().NotNil(err)
 	suite.Require().NotEqual(suite.customer, customer)
@@ -66,10 +67,9 @@ func (suite *CustomerServiceTestSuite) Test_GetByIDReturnsErrorWhenFails() {
 
 func (suite *CustomerServiceTestSuite) Test_GetByIDReturnsNilErrorWhenSucceeds() {
 	ctx := context.Background()
-	customerID := int64(1)
-	suite.MockRepo.On("GetByID", ctx, customerID).Return(suite.customer, nil)
+	suite.MockRepo.On("GetByID", ctx, suite.customer.ID).Return(suite.customer, nil)
 
-	customer, err := suite.cs.GetByID(ctx, customerID)
+	customer, err := suite.cs.GetByID(ctx, suite.customer.ID)
 
 	suite.Require().Nil(err)
 	suite.Require().Equal(suite.customer, customer)

@@ -8,6 +8,7 @@ import (
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
+	"github.com/asheet-bhaskar/billing-service/pkg/utils"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -25,6 +26,7 @@ func (suite *CurrencyServiceTestSuite) SetupTest() {
 	suite.cs = NewCurrencyService(mockRepo)
 
 	suite.currency = &models.Currency{
+		ID:        utils.GetNewUUID(),
 		Code:      "USD",
 		Name:      "United states dollars",
 		Symbol:    "$",
@@ -55,10 +57,10 @@ func (suite *CurrencyServiceTestSuite) Test_CreateCurrencyReturnsNilErrorWhenSuc
 
 func (suite *CurrencyServiceTestSuite) Test_GetByIDReturnsErrorWhenFails() {
 	ctx := context.Background()
-	currencyID := int64(1)
-	suite.MockRepo.On("GetByID", ctx, currencyID).Return(&models.Currency{}, errors.New("test-error"))
 
-	currency, err := suite.cs.GetByID(ctx, currencyID)
+	suite.MockRepo.On("GetByID", ctx, suite.currency.ID).Return(&models.Currency{}, errors.New("test-error"))
+
+	currency, err := suite.cs.GetByID(ctx, suite.currency.ID)
 
 	suite.Require().NotNil(err)
 	suite.Require().NotEqual(suite.currency, currency)
@@ -66,10 +68,10 @@ func (suite *CurrencyServiceTestSuite) Test_GetByIDReturnsErrorWhenFails() {
 
 func (suite *CurrencyServiceTestSuite) Test_GetByIDReturnsNilErrorWhenSucceeds() {
 	ctx := context.Background()
-	currencyID := int64(1)
-	suite.MockRepo.On("GetByID", ctx, currencyID).Return(suite.currency, nil)
 
-	currency, err := suite.cs.GetByID(ctx, currencyID)
+	suite.MockRepo.On("GetByID", ctx, suite.currency.ID).Return(suite.currency, nil)
+
+	currency, err := suite.cs.GetByID(ctx, suite.currency.ID)
 
 	suite.Require().Nil(err)
 	suite.Require().Equal(suite.currency, currency)

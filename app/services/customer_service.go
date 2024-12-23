@@ -14,7 +14,7 @@ type customerService struct {
 
 type CustomerService interface {
 	Create(context.Context, *models.Customer) (*models.Customer, error)
-	GetByID(context.Context, int64) (*models.Customer, error)
+	GetByID(context.Context, string) (*models.Customer, error)
 }
 
 func NewCustomerService(repository repository.CustomerRepository) CustomerService {
@@ -33,10 +33,10 @@ func (cs *customerService) Create(ctx context.Context, customer *models.Customer
 	return customer, nil
 }
 
-func (cs *customerService) GetByID(ctx context.Context, id int64) (*models.Customer, error) {
+func (cs *customerService) GetByID(ctx context.Context, id string) (*models.Customer, error) {
 	customer, err := cs.repository.GetByID(ctx, id)
 	if err != nil {
-		log.Printf("error occured while fetching customer with id %d. error %s\n", id, err.Error())
+		log.Printf("error occured while fetching customer with id %s. error %s\n", id, err.Error())
 		return &models.Customer{}, err
 	}
 

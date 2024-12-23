@@ -24,7 +24,7 @@ func (m *MockBillRepository) Create(ctx context.Context, bill *models.Bill) (*mo
 	return args.Get(0).(*models.Bill), args.Error(1)
 }
 
-func (m *MockBillRepository) GetByID(ctx context.Context, id int64) (*models.Bill, error) {
+func (m *MockBillRepository) GetByID(ctx context.Context, id string) (*models.Bill, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(*models.Bill), args.Error(1)
 }
@@ -37,11 +37,11 @@ func (m *MockBillRepository) RemoveLineItems(ctx context.Context, lineItem *mode
 	args := m.Called(ctx, lineItem)
 	return args.Get(0).(*models.LineItem), args.Error(1)
 }
-func (m *MockBillRepository) GetLineItemsByBillID(ctx context.Context, id int64) ([]*models.LineItem, error) {
+func (m *MockBillRepository) GetLineItemsByBillID(ctx context.Context, id string) ([]*models.LineItem, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).([]*models.LineItem), args.Error(1)
 }
-func (m *MockBillRepository) Close(ctx context.Context, id int64) (*models.Bill, error) {
+func (m *MockBillRepository) Close(ctx context.Context, id string) (*models.Bill, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(*models.Bill), args.Error(1)
 }
@@ -51,7 +51,7 @@ func (m *MockCurrencyRepository) Create(ctx context.Context, currency *models.Cu
 	return args.Get(0).(*models.Currency), args.Error(1)
 }
 
-func (m *MockCurrencyRepository) GetByID(ctx context.Context, id int64) (*models.Currency, error) {
+func (m *MockCurrencyRepository) GetByID(ctx context.Context, id string) (*models.Currency, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(*models.Currency), args.Error(1)
 }
@@ -66,7 +66,7 @@ func (m *MockCustomerRepository) Create(ctx context.Context, customer *models.Cu
 	return args.Get(0).(*models.Customer), args.Error(1)
 }
 
-func (m *MockCustomerRepository) GetByID(ctx context.Context, id int64) (*models.Customer, error) {
+func (m *MockCustomerRepository) GetByID(ctx context.Context, id string) (*models.Customer, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(*models.Customer), args.Error(1)
 }

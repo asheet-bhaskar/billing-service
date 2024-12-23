@@ -7,6 +7,7 @@ import (
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
+	"github.com/asheet-bhaskar/billing-service/pkg/utils"
 )
 
 type billService struct {
@@ -17,7 +18,10 @@ type billService struct {
 
 type BillService interface {
 	Create(context.Context, *models.BillRequest) (*models.Bill, error)
-	GetByID(context.Context, int64) (*models.Bill, error)
+	GetByID(context.Context, string) (*models.Bill, error)
+	AddLineItems(context.Context, *models.LineItem) (*models.LineItem, error)
+	RemoveLineItems(context.Context, *models.LineItem) (*models.LineItem, error)
+	Close(context.Context, string) (*models.Bill, error)
 }
 
 func NewBillService(repository repository.BillRepository, currencyRepository repository.CurrencyRepository, customerRepository repository.CustomerRepository) BillService {
@@ -38,10 +42,11 @@ func (bs *billService) Create(ctx context.Context, request *models.BillRequest) 
 	customer, err := bs.customerRepository.GetByID(ctx, request.CustomerID)
 
 	if err != nil {
-		log.Printf("error while finding the customer for id %d\n", request.CustomerID)
+		log.Printf("error while finding the customer for id %s\n", request.CustomerID)
 		return &models.Bill{}, err
 	}
 	bill := &models.Bill{
+		ID:          utils.GetNewUUID(),
 		Description: request.Description,
 		CustomerID:  customer.ID,
 		CurrencyID:  currency.ID,
@@ -62,12 +67,30 @@ func (bs *billService) Create(ctx context.Context, request *models.BillRequest) 
 	return bill, nil
 }
 
-func (bs *billService) GetByID(ctx context.Context, id int64) (*models.Bill, error) {
+func (bs *billService) GetByID(ctx context.Context, id string) (*models.Bill, error) {
 	bill, err := bs.repository.GetByID(ctx, id)
 	if err != nil {
-		log.Printf("error occured while fetching bill with id %d. error %s\n", id, err.Error())
+		log.Printf("error occured while fetching bill with id %s. error %s\n", id, err.Error())
 		return &models.Bill{}, err
 	}
 
 	return bill, nil
+}
+
+func (bs *billService) AddLineItems(context.Context, *models.LineItem) (*models.LineItem, error) {
+	// bill, err := bs.repository.GetByID()
+
+	return &models.LineItem{}, nil
+}
+
+func (bs *billService) RemoveLineItems(context.Context, *models.LineItem) (*models.LineItem, error) {
+	return &models.LineItem{}, nil
+}
+
+func (bs *billService) Close(context.Context, string) (*models.Bill, error) {
+	return &models.Bill{}, nil
+}
+
+func (bs *billService) Invoice(context.Context, string) (*models.Invoice, error) {
+	return &models.Invoice{}, nil
 }

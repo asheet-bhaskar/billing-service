@@ -14,7 +14,7 @@ type currencyService struct {
 
 type CurrencyService interface {
 	Create(context.Context, *models.Currency) (*models.Currency, error)
-	GetByID(context.Context, int64) (*models.Currency, error)
+	GetByID(context.Context, string) (*models.Currency, error)
 }
 
 func NewCurrencyService(repository repository.CurrencyRepository) CurrencyService {
@@ -33,10 +33,10 @@ func (cs *currencyService) Create(ctx context.Context, currency *models.Currency
 	return currency, nil
 }
 
-func (cs *currencyService) GetByID(ctx context.Context, id int64) (*models.Currency, error) {
+func (cs *currencyService) GetByID(ctx context.Context, id string) (*models.Currency, error) {
 	currency, err := cs.repository.GetByID(ctx, id)
 	if err != nil {
-		log.Printf("error occured while fetching currency with id %d. error %s\n", id, err.Error())
+		log.Printf("error occured while fetching currency with id %s. error %s\n", id, err.Error())
 		return &models.Currency{}, err
 	}
 
