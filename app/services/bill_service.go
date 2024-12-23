@@ -21,7 +21,7 @@ type BillService interface {
 	Create(context.Context, *models.BillRequest) (*models.Bill, error)
 	GetByID(context.Context, string) (*models.Bill, error)
 	AddLineItems(context.Context, *models.LineItem) (*models.LineItem, error)
-	RemoveLineItems(context.Context, *models.LineItem) (*models.LineItem, error)
+	RemoveLineItems(context.Context, string, string) (*models.LineItem, error)
 	Close(context.Context, string) (*models.Bill, error)
 	Invoice(ctx context.Context, billID string) (*models.Invoice, error)
 }
@@ -102,12 +102,19 @@ func (bs *billService) AddLineItems(ctx context.Context, lineItem *models.LineIt
 	return lineItem, nil
 }
 
-func (bs *billService) RemoveLineItems(ctx context.Context, lineItem *models.LineItem) (*models.LineItem, error) {
-	bill, err := bs.repository.GetByID(ctx, lineItem.BillID)
+func (bs *billService) RemoveLineItems(ctx context.Context, billID string, itemID string) (*models.LineItem, error) {
+	lineItem, err := bs.repository.GetLineItemByID(ctx, itemID)
+
+	if err == ce.LineItemNotFoundError || err != nil {
+		log.Printf("line item not found for id %s\n", itemID)
+		return &models.LineItem{}, err
+	}
+
+	bill, err := bs.repository.GetByID(ctx, billID)
 
 	if err == ce.BillNotFoundError || err != nil {
-		log.Printf("bill not found for id %s\n", lineItem.BillID)
-		return lineItem, err
+		log.Printf("bill not found for id %s\n", billID)
+		return &models.LineItem{}, err
 	}
 
 	if bill.Status == "closed" {

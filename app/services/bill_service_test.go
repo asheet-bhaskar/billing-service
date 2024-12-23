@@ -194,8 +194,9 @@ func (suite *BillServiceTestSuite) Test_RemoveLineItemFailsWhenBillNotFound() {
 	}
 	ctx := context.Background()
 	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&models.Bill{}, ce.BillNotFoundError)
+	suite.BillMockRepo.On("GetLineItemByID", ctx, mock.Anything).Return(lineItem, nil)
 
-	_, err := suite.bs.RemoveLineItems(ctx, lineItem)
+	_, err := suite.bs.RemoveLineItems(ctx, "", lineItem.ID)
 	suite.Require().NotNil(err)
 	suite.Require().Equal(ce.BillNotFoundError, err)
 }
@@ -215,8 +216,9 @@ func (suite *BillServiceTestSuite) Test_RemoveLineItemFailsWhenBillIsClosed() {
 
 	ctx := context.Background()
 	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, nil)
+	suite.BillMockRepo.On("GetLineItemByID", ctx, mock.Anything).Return(lineItem, nil)
 
-	_, err := suite.bs.RemoveLineItems(ctx, lineItem)
+	_, err := suite.bs.RemoveLineItems(ctx, "", lineItem.ID)
 	suite.Require().NotNil(err)
 	suite.Require().Equal(ce.BillClosedError, err)
 }
@@ -235,6 +237,7 @@ func (suite *BillServiceTestSuite) Test_RemoveLineItemFailsWhenErrorIsOccurred()
 	testError := errors.New("test-error")
 	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(suite.bill, nil)
 	suite.BillMockRepo.On("AddLineItems", ctx, mock.Anything).Return(lineItem, testError)
+	suite.BillMockRepo.On("GetLineItemByID", ctx, mock.Anything).Return(lineItem, nil)
 
 	_, err := suite.bs.AddLineItems(ctx, lineItem)
 	suite.Require().NotNil(err)
@@ -254,8 +257,9 @@ func (suite *BillServiceTestSuite) Test_RemoveLineItemSucceeds() {
 	ctx := context.Background()
 	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(suite.bill, nil)
 	suite.BillMockRepo.On("RemoveLineItems", ctx, mock.Anything).Return(lineItem, nil)
+	suite.BillMockRepo.On("GetLineItemByID", ctx, mock.Anything).Return(lineItem, nil)
 
-	lineItemSaved, err := suite.bs.RemoveLineItems(ctx, lineItem)
+	lineItemSaved, err := suite.bs.RemoveLineItems(ctx, "", lineItem.ID)
 	suite.Require().Nil(err)
 	suite.Require().Equal(lineItem, lineItemSaved)
 }
