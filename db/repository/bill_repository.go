@@ -19,6 +19,7 @@ type BillRepository interface {
 	AddLineItems(context.Context, *models.LineItem) (*models.LineItem, error)
 	RemoveLineItems(context.Context, *models.LineItem) (*models.LineItem, error)
 	GetLineItemsByBillID(context.Context, string) ([]*models.LineItem, error)
+	GetLineItemByID(context.Context, string) (*models.LineItem, error)
 	Close(context.Context, string) (*models.Bill, error)
 }
 
@@ -44,12 +45,12 @@ func (br *billRepository) GetByID(ctx context.Context, id string) (*models.Bill,
 	result := br.db.Where("id = ?", id).Find(&bill)
 
 	if result.Error == gorm.ErrRecordNotFound {
-		log.Printf("bill does not exist for id, %d. error is %s", id, result.Error.Error())
+		log.Printf("bill does not exist for id, %s. error is %s", id, result.Error.Error())
 		return bill, ce.BillNotFoundError
 	}
 
 	if result.Error != nil {
-		log.Printf("error occured while querying bill, %d. error is %s", id, result.Error.Error())
+		log.Printf("error occured while querying bill, %s. error is %s", id, result.Error.Error())
 		return bill, result.Error
 	}
 
@@ -107,4 +108,21 @@ func (br *billRepository) GetLineItemsByBillID(ctx context.Context, billID strin
 	}
 
 	return lineItems, nil
+}
+
+func (br *billRepository) GetLineItemByID(ctx context.Context, id string) (*models.LineItem, error) {
+	lineItem := &models.LineItem{}
+	result := br.db.Where("id = ?", id).Find(&lineItem)
+
+	if result.Error == gorm.ErrRecordNotFound {
+		log.Printf("line item does not exist for id, %s. error is %s", id, result.Error.Error())
+		return lineItem, ce.LineItemNotFoundError
+	}
+
+	if result.Error != nil {
+		log.Printf("error occured while fetching line item for id, %s. error is %s", id, result.Error.Error())
+		return lineItem, result.Error
+	}
+
+	return lineItem, nil
 }

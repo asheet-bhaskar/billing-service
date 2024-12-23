@@ -155,6 +155,40 @@ func (suite *BillRepositoryTestSuite) Test_RemoveLineItemWhenSucceeds() {
 	suite.Nil(err, "error should be nil")
 }
 
+func (suite *BillRepositoryTestSuite) Test_GetLineItemByIDSucceeds() {
+	ctx := context.Background()
+	bill := &models.Bill{
+		ID:          utils.GetNewUUID(),
+		Description: "Bill 01",
+		CustomerID:  suite.customer.ID,
+		CurrencyID:  suite.currency.ID,
+		Status:      "open",
+		TotalAmount: 100.00,
+		PeriodStart: time.Now().UTC(),
+		PeriodEnd:   time.Now().UTC().Add(time.Hour * 100),
+		CreatedAt:   time.Now().UTC(),
+		UpdatedAt:   time.Now().UTC(),
+	}
+	_, err := suite.br.Create(ctx, bill)
+	suite.Nil(err, "error should be nil")
+
+	lineItem := &models.LineItem{
+		ID:          utils.GetNewUUID(),
+		BillID:      bill.ID,
+		Description: "line item 01",
+		Amount:      12.50,
+		CreatedAt:   time.Now(),
+		Removed:     false,
+	}
+
+	_, err = suite.br.AddLineItems(ctx, lineItem)
+	suite.Nil(err, "error should be nil")
+
+	lineItemActual, err := suite.br.GetLineItemByID(ctx, lineItem.ID)
+	suite.Nil(err, "error should be nil")
+	suite.Equal(lineItem.ID, lineItemActual.ID)
+}
+
 func (suite *BillRepositoryTestSuite) Test_GetLineItemByBillIDWhenSucceeds() {
 	ctx := context.Background()
 	bill := &models.Bill{

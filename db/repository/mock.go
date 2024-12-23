@@ -37,6 +37,12 @@ func (m *MockBillRepository) RemoveLineItems(ctx context.Context, lineItem *mode
 	args := m.Called(ctx, lineItem)
 	return args.Get(0).(*models.LineItem), args.Error(1)
 }
+
+func (m *MockBillRepository) GetLineItemByID(ctx context.Context, id string) (*models.LineItem, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(*models.LineItem), args.Error(1)
+}
+
 func (m *MockBillRepository) GetLineItemsByBillID(ctx context.Context, id string) ([]*models.LineItem, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).([]*models.LineItem), args.Error(1)
