@@ -21,6 +21,7 @@ type BillRepository interface {
 	GetLineItemsByBillID(context.Context, string) ([]*models.LineItem, error)
 	GetLineItemByID(context.Context, string) (*models.LineItem, error)
 	Close(context.Context, string) (*models.Bill, error)
+	UpdateBillAmount(context.Context, string, float64) error
 }
 
 func NewBillRepository(dbClient *gorm.DB) BillRepository {
@@ -71,7 +72,6 @@ func (br *billRepository) AddLineItems(ctx context.Context, lineItem *models.Lin
 func (br *billRepository) RemoveLineItems(ctx context.Context, lineItem *models.LineItem) (*models.LineItem, error) {
 	lineItem.Removed = true
 	log.Printf("removing line item %v\n", lineItem)
-	// result := br.db.Save(lineItem)
 	result := br.db.Model(&lineItem).Where("id = ?", lineItem.ID).Update("removed", true)
 
 	if result.Error != nil {
@@ -128,4 +128,17 @@ func (br *billRepository) GetLineItemByID(ctx context.Context, id string) (*mode
 	}
 
 	return lineItem, nil
+}
+
+func (br *billRepository) UpdateBillAmount(ctx context.Context, billID string, amount float64) error {
+	log.Printf("updating bill amount %f for bill id %s\n", amount, billID)
+	bill := &models.Bill{}
+	result := br.db.Model(bill).Where("id = ?", billID).Update("total_amount", amount)
+
+	if result.Error != nil {
+		log.Printf("error occured while updating amount for bill %s\n", billID)
+		return result.Error
+	}
+
+	return nil
 }
