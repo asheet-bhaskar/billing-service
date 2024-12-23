@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Customer struct {
-	ID        int64
+	ID        string
 	FirstName string
 	LastName  string
 	Email     string

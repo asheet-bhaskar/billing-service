@@ -5,7 +5,7 @@ import (
 )
 
 type Currency struct {
-	ID        int64
+	ID        string
 	Code      string
 	Name      string
 	Symbol    string

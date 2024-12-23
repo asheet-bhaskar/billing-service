@@ -5,10 +5,10 @@ import (
 )
 
 type Bill struct {
-	ID          int64
+	ID          string
 	Description string
-	CustomerID  int64
-	CurrencyID  int64
+	CustomerID  string
+	CurrencyID  string
 	Status      string
 	TotalAmount float64
 	PeriodStart time.Time
@@ -19,7 +19,7 @@ type Bill struct {
 
 type LineItem struct {
 	ID          string
-	BillID      int64
+	BillID      string
 	Description string
 	Amount      float64
 	CreatedAt   time.Time
@@ -28,14 +28,14 @@ type LineItem struct {
 
 type BillRequest struct {
 	Description  string
-	CustomerID   int64
+	CustomerID   string
 	CurrencyCode string
 	PeriodStart  time.Time
 	PeriodEnd    time.Time
 }
 
 func (r *BillRequest) IsValid() bool {
-	if (r.Description == "" || r.CustomerID <= 0 || r.CurrencyCode == "" || r.PeriodStart == time.Time{} || r.PeriodEnd == time.Time{}) {
+	if (r.Description == "" || r.CustomerID == "" || r.CurrencyCode == "" || r.PeriodStart == time.Time{} || r.PeriodEnd == time.Time{}) {
 		return false
 	}
 	return true
