@@ -15,8 +15,8 @@ type LineItemSignal struct {
 
 func BillingWorkflow(ctx workflow.Context, bill *models.Bill) error {
 	logger := workflow.GetLogger(ctx)
-	var a *Activities
 
+	var a *Activities
 	addLineItemChan := workflow.GetSignalChannel(ctx, "ADD_BILL_ITEM_CHANNEL")
 	removeLineItemChan := workflow.GetSignalChannel(ctx, "REMOVE_BILL_ITEM_CHANNEL")
 
