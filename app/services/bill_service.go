@@ -23,6 +23,7 @@ type BillService interface {
 	AddLineItems(context.Context, *models.LineItem) (*models.LineItem, error)
 	RemoveLineItems(context.Context, *models.LineItem) (*models.LineItem, error)
 	Close(context.Context, string) (*models.Bill, error)
+	Invoice(ctx context.Context, billID string) (*models.Invoice, error)
 }
 
 func NewBillService(repository repository.BillRepository, currencyRepository repository.CurrencyRepository, customerRepository repository.CustomerRepository) BillService {
@@ -147,6 +148,29 @@ func (bs *billService) Close(ctx context.Context, billID string) (*models.Bill, 
 	return bill, nil
 }
 
-func (bs *billService) Invoice(context.Context, string) (*models.Invoice, error) {
-	return &models.Invoice{}, nil
+func (bs *billService) Invoice(ctx context.Context, billID string) (*models.Invoice, error) {
+	invoice := &models.Invoice{}
+
+	bill, err := bs.repository.GetByID(ctx, billID)
+
+	if err == ce.BillNotFoundError || err != nil {
+		log.Printf("bill not found for id %s\n", billID)
+		return invoice, err
+	}
+
+	currency, err := bs.currencyRepository.GetByID(ctx, bill.CurrencyID)
+	if err != nil {
+		log.Printf("error while fetching currency code for bill id %s\n", billID)
+		return invoice, err
+	}
+
+	lineItems, err := bs.repository.GetLineItemsByBillID(ctx, bill.ID)
+	if err != nil || err != nil {
+		log.Printf("error while fetching line items for bill id %s\n", billID)
+		return invoice, err
+	}
+
+	invoice = models.CreateInvoice(bill, lineItems, currency.Code)
+
+	return invoice, nil
 }

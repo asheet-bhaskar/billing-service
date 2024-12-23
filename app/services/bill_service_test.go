@@ -310,6 +310,87 @@ func (suite *BillServiceTestSuite) Test_CloseBillSucceeds() {
 	suite.Require().Equal("closed", billActual.Status)
 }
 
+func (suite *BillServiceTestSuite) Test_InvoiceFailsWhenBillNotFound() {
+	bill := *suite.bill
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, ce.BillNotFoundError)
+
+	_, err := suite.bs.Invoice(ctx, suite.bill.ID)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(ce.BillNotFoundError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_InvoiceFailsWhenCurrencyNotFound() {
+	bill := *suite.bill
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, nil)
+	suite.CurrencyMockRepo.On("GetByID", ctx, mock.Anything).Return(&models.Currency{}, ce.CurrencyNotFoundError)
+
+	_, err := suite.bs.Invoice(ctx, suite.bill.ID)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(ce.CurrencyNotFoundError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_InvoiceFailsErrorOccuredWhileFetchingLineItems() {
+	bill := *suite.bill
+	testError := errors.New("test error")
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, nil)
+	suite.CurrencyMockRepo.On("GetByID", ctx, mock.Anything).Return(&models.Currency{Code: "001"}, nil)
+	suite.BillMockRepo.On("GetLineItemsByBillID", ctx, mock.Anything).Return([]*models.LineItem{&models.LineItem{}}, testError)
+
+	_, err := suite.bs.Invoice(ctx, suite.bill.ID)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(testError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_InvoiceSucceedsWhenBillNotHasRemovedLineItems() {
+	bill := *suite.bill
+	lineItems := []*models.LineItem{
+		{
+			ID:          utils.GetNewUUID(),
+			BillID:      bill.ID,
+			Description: "line item 001",
+			Amount:      100.0,
+			CreatedAt:   time.Now(),
+			Removed:     false,
+		}}
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, nil)
+	suite.CurrencyMockRepo.On("GetByID", ctx, mock.Anything).Return(&models.Currency{Code: "001"}, nil)
+	suite.BillMockRepo.On("GetLineItemsByBillID", ctx, mock.Anything).Return(lineItems, nil)
+
+	lineItemsActual, err := suite.bs.Invoice(ctx, suite.bill.ID)
+	suite.Require().Nil(err)
+	suite.Require().Equal(len(lineItems), len(lineItemsActual.LineItems))
+}
+
+func (suite *BillServiceTestSuite) Test_InvoiceSucceedsWhenBillHasRemovedLineItems() {
+	bill := *suite.bill
+	lineItems := []*models.LineItem{
+		{
+			ID:          utils.GetNewUUID(),
+			BillID:      bill.ID,
+			Description: "line item 001",
+			Amount:      100.0,
+			CreatedAt:   time.Now(),
+			Removed:     true,
+		}}
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, nil)
+	suite.CurrencyMockRepo.On("GetByID", ctx, mock.Anything).Return(&models.Currency{Code: "001"}, nil)
+	suite.BillMockRepo.On("GetLineItemsByBillID", ctx, mock.Anything).Return(lineItems, nil)
+
+	lineItemsActual, err := suite.bs.Invoice(ctx, suite.bill.ID)
+	suite.Require().Nil(err)
+	suite.Require().Equal(0, len(lineItemsActual.LineItems))
+}
+
 func TestBillServiceTestSuite(t *testing.T) {
 	suite.Run(t, new(BillServiceTestSuite))
 }
