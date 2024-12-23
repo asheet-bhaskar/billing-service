@@ -10,8 +10,8 @@ import (
 )
 
 // encore:api method=GET path=/customers/:id
-func (bs *BillingService) GetCustomerHandler(ctx context.Context, id int64) (*models.Customer, error) {
-	if id <= 0 {
+func (bs *BillingService) GetCustomerHandler(ctx context.Context, id string) (*models.Customer, error) {
+	if id == "" {
 		log.Println("invalid customer id")
 		return &models.Customer{}, &errs.Error{
 			Code:    errs.InvalidArgument,
@@ -21,7 +21,7 @@ func (bs *BillingService) GetCustomerHandler(ctx context.Context, id int64) (*mo
 	customer, err := bs.Customer.GetByID(ctx, id)
 
 	if err == ce.CustomerNotFoundError {
-		log.Printf("customer not found for id %d\n", id)
+		log.Printf("customer not found for id %s\n", id)
 		return &models.Customer{}, &errs.Error{
 			Code:    errs.NotFound,
 			Message: "customer not found",
@@ -29,7 +29,7 @@ func (bs *BillingService) GetCustomerHandler(ctx context.Context, id int64) (*mo
 	}
 
 	if err != nil {
-		log.Printf("error occurred while fetching customer for id %d\n", id)
+		log.Printf("error occurred while fetching customer for id %s\n", id)
 		return &models.Customer{}, &errs.Error{
 			Code:    errs.Unknown,
 			Message: "failed to get customer",
