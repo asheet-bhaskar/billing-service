@@ -11,8 +11,8 @@ import (
 )
 
 // encore:api method=GET path=/bills/:id
-func (bs *BillingService) GetBillHandler(ctx context.Context, id int64) (*models.Bill, error) {
-	if id <= 0 {
+func (bs *BillingService) GetBillHandler(ctx context.Context, id string) (*models.Bill, error) {
+	if id == "" {
 		log.Println("invalid bill id")
 		return &models.Bill{}, &errs.Error{
 			Code:    errs.InvalidArgument,
@@ -22,7 +22,7 @@ func (bs *BillingService) GetBillHandler(ctx context.Context, id int64) (*models
 	bill, err := bs.Bill.GetByID(ctx, id)
 
 	if err == ce.BillNotFoundError {
-		log.Printf("bill not found for id %d\n", id)
+		log.Printf("bill not found for id %s\n", id)
 		return &models.Bill{}, &errs.Error{
 			Code:    errs.NotFound,
 			Message: "bill not found",
@@ -30,7 +30,7 @@ func (bs *BillingService) GetBillHandler(ctx context.Context, id int64) (*models
 	}
 
 	if err != nil {
-		log.Printf("error occurred while fetching bill for id %d\n", id)
+		log.Printf("error occurred while fetching bill for is %d\n", id)
 		return &models.Bill{}, &errs.Error{
 			Code:    errs.Unknown,
 			Message: "failed to find bill",
@@ -53,10 +53,10 @@ func (bs *BillingService) CreateBillHandler(ctx context.Context, request *models
 	bill, err := bs.Bill.Create(ctx, request)
 
 	if err == ce.CustomerNotFoundError {
-		log.Printf("customer not found for id, %d", request.CustomerID)
+		log.Printf("customer not found for id, %s", request.CustomerID)
 		return &models.Bill{}, &errs.Error{
 			Code:    errs.InvalidArgument,
-			Message: fmt.Sprintf("customer not found for id, %d", request.CustomerID),
+			Message: fmt.Sprintf("customer not found for id, %s", request.CustomerID),
 		}
 	}
 
@@ -85,4 +85,90 @@ func (bs *BillingService) CreateBillHandler(ctx context.Context, request *models
 	}
 
 	return bill, nil
+}
+
+//encore:api method=POST path=/bills/items
+func (bs *BillingService) AddLineItemsHandler(ctx context.Context, lineItem models.LineItem) (*models.LineItem, error) {
+	if lineItem.BillID == "" {
+		log.Println("invalid bill id")
+		return &lineItem, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "invalid bill id",
+		}
+	}
+
+	item, err := bs.Bill.AddLineItems(ctx, &lineItem)
+
+	if err == ce.BillNotFoundError {
+		log.Println("bill not found")
+		return &lineItem, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "bill not found",
+		}
+	}
+
+	if err == ce.BillClosedError {
+		log.Println("bill closed already")
+		return &lineItem, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "bill closed already",
+		}
+	}
+
+	if err != nil {
+		log.Println("failed to add line item")
+		return &lineItem, &errs.Error{
+			Code:    errs.Unknown,
+			Message: "failed to add line item",
+		}
+	}
+
+	return item, nil
+}
+
+//encore:api method=PUT path=/bills/:billID/items/:itemID
+func (bs *BillingService) RemoveLineItemsHandler(ctx context.Context, billID string, itemID string) (*models.LineItem, error) {
+	if billID == "" || itemID == "" {
+		log.Println("invalid bill id or item id")
+		return &models.LineItem{}, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "invalid bill idor item id",
+		}
+	}
+
+	item, err := bs.Bill.RemoveLineItems(ctx, billID, itemID)
+
+	if err == ce.LineItemAlreadyRemovedError {
+		log.Println("line item aleady removed")
+		return item, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "line item aleady removed",
+		}
+	}
+
+	if err == ce.BillNotFoundError {
+		log.Println("bill not found")
+		return item, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "bill not found",
+		}
+	}
+
+	if err == ce.BillClosedError {
+		log.Println("bill closed already")
+		return item, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "bill closed already",
+		}
+	}
+
+	if err != nil {
+		log.Println("failed to remove line item")
+		return item, &errs.Error{
+			Code:    errs.Unknown,
+			Message: "failed to remove line item",
+		}
+	}
+
+	return item, nil
 }
