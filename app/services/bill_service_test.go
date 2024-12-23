@@ -183,6 +183,83 @@ func (suite *BillServiceTestSuite) Test_AddLineItemSucceeds() {
 	suite.Require().Equal(lineItem, lineItemSaved)
 }
 
+func (suite *BillServiceTestSuite) Test_RemoveLineItemFailsWhenBillNotFound() {
+	lineItem := &models.LineItem{
+		ID:          utils.GetNewUUID(),
+		BillID:      suite.bill.ID,
+		Description: "line item 01",
+		Amount:      100.0,
+		CreatedAt:   time.Now().UTC(),
+		Removed:     false,
+	}
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&models.Bill{}, ce.BillNotFoundError)
+
+	_, err := suite.bs.RemoveLineItems(ctx, lineItem)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(ce.BillNotFoundError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_RemoveLineItemFailsWhenBillIsClosed() {
+	lineItem := &models.LineItem{
+		ID:          utils.GetNewUUID(),
+		BillID:      suite.bill.ID,
+		Description: "line item 02",
+		Amount:      100.0,
+		CreatedAt:   time.Now().UTC(),
+		Removed:     false,
+	}
+
+	bill := *suite.bill
+	bill.Status = "closed"
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, nil)
+
+	_, err := suite.bs.RemoveLineItems(ctx, lineItem)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(ce.BillClosedError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_RemoveLineItemFailsWhenErrorIsOccurred() {
+	lineItem := &models.LineItem{
+		ID:          utils.GetNewUUID(),
+		BillID:      suite.bill.ID,
+		Description: "line item 03",
+		Amount:      100.0,
+		CreatedAt:   time.Now().UTC(),
+		Removed:     false,
+	}
+
+	ctx := context.Background()
+	testError := errors.New("test-error")
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(suite.bill, nil)
+	suite.BillMockRepo.On("AddLineItems", ctx, mock.Anything).Return(lineItem, testError)
+
+	_, err := suite.bs.AddLineItems(ctx, lineItem)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(testError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_RemoveLineItemSucceeds() {
+	lineItem := &models.LineItem{
+		ID:          utils.GetNewUUID(),
+		BillID:      suite.bill.ID,
+		Description: "line item 03",
+		Amount:      100.0,
+		CreatedAt:   time.Now().UTC(),
+		Removed:     false,
+	}
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(suite.bill, nil)
+	suite.BillMockRepo.On("RemoveLineItems", ctx, mock.Anything).Return(lineItem, nil)
+
+	lineItemSaved, err := suite.bs.RemoveLineItems(ctx, lineItem)
+	suite.Require().Nil(err)
+	suite.Require().Equal(lineItem, lineItemSaved)
+}
+
 func TestBillServiceTestSuite(t *testing.T) {
 	suite.Run(t, new(BillServiceTestSuite))
 }
