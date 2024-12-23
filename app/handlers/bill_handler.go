@@ -210,3 +210,33 @@ func (bs *BillingService) GetInvoiceHandler(ctx context.Context, id string) (*mo
 
 	return invoice, nil
 }
+
+// encore:api method=PUT path=/bills/:id/close
+func (bs *BillingService) CloseBillHandler(ctx context.Context, id string) (*models.Bill, error) {
+	if id == "" {
+		log.Println("invalid bill id")
+		return &models.Bill{}, &errs.Error{
+			Code:    errs.InvalidArgument,
+			Message: "invalid bill id",
+		}
+	}
+	bill, err := bs.Bill.Close(ctx, id)
+
+	if err == ce.BillNotFoundError {
+		log.Printf("bill not found for id %s\n", id)
+		return &models.Bill{}, &errs.Error{
+			Code:    errs.NotFound,
+			Message: "bill not found",
+		}
+	}
+
+	if err != nil {
+		log.Printf("error occurred while closing bill for is %d\n", id)
+		return &models.Bill{}, &errs.Error{
+			Code:    errs.Unknown,
+			Message: "failed to find bill",
+		}
+	}
+
+	return bill, nil
+}
