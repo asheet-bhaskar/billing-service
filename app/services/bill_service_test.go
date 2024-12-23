@@ -8,6 +8,7 @@ import (
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
+	ce "github.com/asheet-bhaskar/billing-service/pkg/error"
 	"github.com/asheet-bhaskar/billing-service/pkg/utils"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -103,6 +104,83 @@ func (suite *BillServiceTestSuite) Test_GetByIDReturnsNilErrorWhenSucceeds() {
 
 	suite.Require().Nil(err)
 	suite.Require().Equal(&models.Bill{}, bill)
+}
+
+func (suite *BillServiceTestSuite) Test_AddLineItemFailsWhenBillNotFound() {
+	lineItem := &models.LineItem{
+		ID:          utils.GetNewUUID(),
+		BillID:      suite.bill.ID,
+		Description: "line item 01",
+		Amount:      100.0,
+		CreatedAt:   time.Now().UTC(),
+		Removed:     false,
+	}
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&models.Bill{}, ce.BillNotFoundError)
+
+	_, err := suite.bs.AddLineItems(ctx, lineItem)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(ce.BillNotFoundError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_AddLineItemFailsWhenBillIsClosed() {
+	lineItem := &models.LineItem{
+		ID:          utils.GetNewUUID(),
+		BillID:      suite.bill.ID,
+		Description: "line item 02",
+		Amount:      100.0,
+		CreatedAt:   time.Now().UTC(),
+		Removed:     false,
+	}
+
+	bill := *suite.bill
+	bill.Status = "closed"
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(&bill, nil)
+
+	_, err := suite.bs.AddLineItems(ctx, lineItem)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(ce.BillClosedError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_AddLineItemFailsWhenErrorIsOccurred() {
+	lineItem := &models.LineItem{
+		ID:          utils.GetNewUUID(),
+		BillID:      suite.bill.ID,
+		Description: "line item 03",
+		Amount:      100.0,
+		CreatedAt:   time.Now().UTC(),
+		Removed:     false,
+	}
+
+	ctx := context.Background()
+	testError := errors.New("test-error")
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(suite.bill, nil)
+	suite.BillMockRepo.On("AddLineItems", ctx, mock.Anything).Return(lineItem, testError)
+
+	_, err := suite.bs.AddLineItems(ctx, lineItem)
+	suite.Require().NotNil(err)
+	suite.Require().Equal(testError, err)
+}
+
+func (suite *BillServiceTestSuite) Test_AddLineItemSucceeds() {
+	lineItem := &models.LineItem{
+		ID:          utils.GetNewUUID(),
+		BillID:      suite.bill.ID,
+		Description: "line item 03",
+		Amount:      100.0,
+		CreatedAt:   time.Now().UTC(),
+		Removed:     false,
+	}
+
+	ctx := context.Background()
+	suite.BillMockRepo.On("GetByID", ctx, mock.Anything).Return(suite.bill, nil)
+	suite.BillMockRepo.On("AddLineItems", ctx, mock.Anything).Return(lineItem, nil)
+
+	lineItemSaved, err := suite.bs.AddLineItems(ctx, lineItem)
+	suite.Require().Nil(err)
+	suite.Require().Equal(lineItem, lineItemSaved)
 }
 
 func TestBillServiceTestSuite(t *testing.T) {

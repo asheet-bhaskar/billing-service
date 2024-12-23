@@ -7,6 +7,7 @@ import (
 
 	"github.com/asheet-bhaskar/billing-service/app/models"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
+	ce "github.com/asheet-bhaskar/billing-service/pkg/error"
 	"github.com/asheet-bhaskar/billing-service/pkg/utils"
 )
 
@@ -77,10 +78,27 @@ func (bs *billService) GetByID(ctx context.Context, id string) (*models.Bill, er
 	return bill, nil
 }
 
-func (bs *billService) AddLineItems(context.Context, *models.LineItem) (*models.LineItem, error) {
-	// bill, err := bs.repository.GetByID()
+func (bs *billService) AddLineItems(ctx context.Context, lineItem *models.LineItem) (*models.LineItem, error) {
+	bill, err := bs.repository.GetByID(ctx, lineItem.BillID)
 
-	return &models.LineItem{}, nil
+	if err == ce.BillNotFoundError || err != nil {
+		log.Printf("bill not found for id %s\n", lineItem.BillID)
+		return lineItem, err
+	}
+
+	if bill.Status == "closed" {
+		log.Printf("bill is already closed for id %s\n", lineItem.BillID)
+		return lineItem, ce.BillClosedError
+	}
+
+	lineItem, err = bs.repository.AddLineItems(ctx, lineItem)
+
+	if err != nil {
+		log.Printf("error while adding line item %v. error is %s\n", lineItem, err.Error())
+		return lineItem, err
+	}
+
+	return lineItem, nil
 }
 
 func (bs *billService) RemoveLineItems(context.Context, *models.LineItem) (*models.LineItem, error) {
