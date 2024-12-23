@@ -21,7 +21,6 @@ type BillServiceTestSuite struct {
 	CustomerMockRepo   *repository.MockCustomerRepository
 	CurrencyMockRepo   *repository.MockCurrencyRepository
 	TemporalClientMock *tc.MockTemporalClient
-	WorkflowRunMock    *tc.MockWorkflowRun
 	bs                 BillService
 	billRequest        *models.BillRequest
 	bill               *models.Bill
@@ -35,13 +34,11 @@ func (suite *BillServiceTestSuite) SetupTest() {
 	customerMockRepo := new(repository.MockCustomerRepository)
 	currencyMockRepo := new(repository.MockCurrencyRepository)
 	temporalClientMock := new(tc.MockTemporalClient)
-	workflowRunMock := new(tc.MockWorkflowRun)
 
 	suite.BillMockRepo = billMockRepo
 	suite.CustomerMockRepo = customerMockRepo
 	suite.CurrencyMockRepo = currencyMockRepo
 	suite.TemporalClientMock = temporalClientMock
-	suite.WorkflowRunMock = workflowRunMock
 
 	suite.bs = NewBillService(billMockRepo, currencyMockRepo, customerMockRepo, temporalClientMock)
 	currencyID := utils.GetNewUUID()

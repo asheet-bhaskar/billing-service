@@ -50,6 +50,12 @@ func (m *MockBillRepository) GetLineItemsByBillID(ctx context.Context, id string
 func (m *MockBillRepository) Close(ctx context.Context, id string) (*models.Bill, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(*models.Bill), args.Error(1)
+
+}
+
+func (m *MockBillRepository) UpdateBillAmount(ctx context.Context, billID string, amount float64) error {
+	args := m.Called(ctx, billID, amount)
+	return args.Error(1)
 }
 
 func (m *MockCurrencyRepository) Create(ctx context.Context, currency *models.Currency) (*models.Currency, error) {
