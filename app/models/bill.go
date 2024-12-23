@@ -35,7 +35,8 @@ type BillRequest struct {
 }
 
 func (r *BillRequest) IsValid() bool {
-	if (r.Description == "" || r.CustomerID == "" || r.CurrencyCode == "" || r.PeriodStart == time.Time{} || r.PeriodEnd == time.Time{}) {
+	if (r.Description == "" || r.CustomerID == "" || r.CurrencyCode == "" || r.PeriodStart == time.Time{} ||
+		r.PeriodEnd == time.Time{} || r.PeriodStart.After(r.PeriodEnd)) {
 		return false
 	}
 	return true

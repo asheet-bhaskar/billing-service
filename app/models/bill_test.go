@@ -35,6 +35,19 @@ func (suite *BillTestSuite) Test_IsValidReturnTrue() {
 	suite.True(suite.validBillrequest.IsValid())
 }
 
+func (suite *BillTestSuite) Test_IsValidReturnFalseWhenStartPeriodIsAfterEndPeriod() {
+	now := time.Now()
+	request := &BillRequest{
+		Description:  "bill 01",
+		CustomerID:   "customer id",
+		CurrencyCode: "USD",
+		PeriodStart:  now.Add(time.Hour * 1),
+		PeriodEnd:    now,
+	}
+
+	suite.False(request.IsValid())
+}
+
 func TestBillTestSuite(t *testing.T) {
 	suite.Run(t, new(BillTestSuite))
 }
