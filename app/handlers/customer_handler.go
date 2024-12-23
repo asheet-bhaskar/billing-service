@@ -10,7 +10,7 @@ import (
 )
 
 // encore:api method=GET path=/customers/:id
-func (bs *BillingService) GetCustomerHandler(ctx context.Context, id string) (*models.Customer, error) {
+func (bs *APIService) GetCustomerHandler(ctx context.Context, id string) (*models.Customer, error) {
 	if id == "" {
 		log.Println("invalid customer id")
 		return &models.Customer{}, &errs.Error{
@@ -40,7 +40,7 @@ func (bs *BillingService) GetCustomerHandler(ctx context.Context, id string) (*m
 }
 
 // encore:api  method=POST path=/customers
-func (bs *BillingService) CreateCustomerHandler(ctx context.Context, request *models.Customer) (*models.Customer, error) {
+func (bs *APIService) CreateCustomerHandler(ctx context.Context, request *models.Customer) (*models.Customer, error) {
 	if !request.IsValid() {
 		log.Println("invalid customer request")
 		return &models.Customer{}, &errs.Error{

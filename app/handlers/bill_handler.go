@@ -11,7 +11,7 @@ import (
 )
 
 // encore:api method=GET path=/bills/:id
-func (bs *BillingService) GetBillHandler(ctx context.Context, id string) (*models.Bill, error) {
+func (bs *APIService) GetBillHandler(ctx context.Context, id string) (*models.Bill, error) {
 	if id == "" {
 		log.Println("invalid bill id")
 		return &models.Bill{}, &errs.Error{
@@ -41,7 +41,7 @@ func (bs *BillingService) GetBillHandler(ctx context.Context, id string) (*model
 }
 
 // encore:api  method=POST path=/bills
-func (bs *BillingService) CreateBillHandler(ctx context.Context, request *models.BillRequest) (*models.Bill, error) {
+func (bs *APIService) CreateBillHandler(ctx context.Context, request *models.BillRequest) (*models.Bill, error) {
 	if !request.IsValid() {
 		log.Println("invalid bill request")
 		return &models.Bill{}, &errs.Error{
@@ -88,7 +88,7 @@ func (bs *BillingService) CreateBillHandler(ctx context.Context, request *models
 }
 
 //encore:api method=POST path=/bills/items
-func (bs *BillingService) AddLineItemsHandler(ctx context.Context, lineItem models.LineItem) (*models.LineItem, error) {
+func (bs *APIService) AddLineItemsHandler(ctx context.Context, lineItem models.LineItem) (*models.LineItem, error) {
 	if lineItem.BillID == "" {
 		log.Println("invalid bill id")
 		return &lineItem, &errs.Error{
@@ -127,7 +127,7 @@ func (bs *BillingService) AddLineItemsHandler(ctx context.Context, lineItem mode
 }
 
 //encore:api method=PUT path=/bills/:billID/items/:itemID
-func (bs *BillingService) RemoveLineItemsHandler(ctx context.Context, billID string, itemID string) (*models.LineItem, error) {
+func (bs *APIService) RemoveLineItemsHandler(ctx context.Context, billID string, itemID string) (*models.LineItem, error) {
 	if billID == "" || itemID == "" {
 		log.Println("invalid bill id or item id")
 		return &models.LineItem{}, &errs.Error{
@@ -174,7 +174,7 @@ func (bs *BillingService) RemoveLineItemsHandler(ctx context.Context, billID str
 }
 
 // encore:api method=GET path=/bills/:id/invoice
-func (bs *BillingService) GetInvoiceHandler(ctx context.Context, id string) (*models.Invoice, error) {
+func (bs *APIService) GetInvoiceHandler(ctx context.Context, id string) (*models.Invoice, error) {
 	if id == "" {
 		log.Println("invalid bill id")
 		return &models.Invoice{}, &errs.Error{
@@ -212,7 +212,7 @@ func (bs *BillingService) GetInvoiceHandler(ctx context.Context, id string) (*mo
 }
 
 // encore:api method=PUT path=/bills/:id/close
-func (bs *BillingService) CloseBillHandler(ctx context.Context, id string) (*models.Bill, error) {
+func (bs *APIService) CloseBillHandler(ctx context.Context, id string) (*models.Bill, error) {
 	if id == "" {
 		log.Println("invalid bill id")
 		return &models.Bill{}, &errs.Error{

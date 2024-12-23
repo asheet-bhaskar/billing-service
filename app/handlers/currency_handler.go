@@ -10,7 +10,7 @@ import (
 )
 
 // encore:api method=GET path=/currencies/:id
-func (bs *BillingService) GetCurrencyHandler(ctx context.Context, id string) (*models.Currency, error) {
+func (bs *APIService) GetCurrencyHandler(ctx context.Context, id string) (*models.Currency, error) {
 	if id == "" {
 		log.Println("invalid currency id")
 		return &models.Currency{}, &errs.Error{
@@ -40,7 +40,7 @@ func (bs *BillingService) GetCurrencyHandler(ctx context.Context, id string) (*m
 }
 
 // encore:api  method=POST path=/currencies
-func (bs *BillingService) CreateCurrencyHandler(ctx context.Context, request *models.Currency) (*models.Currency, error) {
+func (bs *APIService) CreateCurrencyHandler(ctx context.Context, request *models.Currency) (*models.Currency, error) {
 	if !request.IsValid() {
 		log.Println("invalid currency request")
 		return &models.Currency{}, &errs.Error{
