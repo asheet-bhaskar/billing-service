@@ -13,7 +13,7 @@ Go application that manages the billing lifecycle and workflows.
 ### Develoment Setup
 * clone repository
 * cd billing-service
-* Run application dependencies
+* Run application dependencies, postgresql & temporal
   * `docker-compose up` 
 * Install application dependencies
   *`go mod tidy` 
