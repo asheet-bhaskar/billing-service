@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"encore.dev/config"
-	appConfig "github.com/asheet-bhaskar/billing-service/app/config"
 	service "github.com/asheet-bhaskar/billing-service/app/services"
 	"github.com/asheet-bhaskar/billing-service/db"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
@@ -19,15 +18,25 @@ type APIService struct {
 	Currency service.CurrencyService
 }
 
-var applicationConfig = config.Load[appConfig.Config]()
+type Config struct {
+	TemporalHostPort       config.String
+	DBHost                 config.String
+	DBPort                 config.String
+	DBUser                 config.String
+	DBPassword             config.String
+	DBName                 config.String
+	DBSchemaMigrationsPath config.String
+}
+
+var appConfig = config.Load[Config]()
 
 func initAPIService() (*APIService, error) {
-	dbClient, _ := db.InitDBClient(applicationConfig)
+	dbClient, _ := db.InitDBClient(appConfig.DBHost(), appConfig.DBPort(), appConfig.DBUser(), appConfig.DBUser(), appConfig.DBName(), appConfig.DBSchemaMigrationsPath())
 	BillRepo := repository.NewBillRepository(dbClient.DB)
 	CustomerRepo := repository.NewCustomerRepository(dbClient.DB)
 	CurrencyRepo := repository.NewCurrencyRepository(dbClient.DB)
 	temporalClient, err := client.NewClient(client.Options{
-		HostPort:  applicationConfig.TemporalHostPort(),
+		HostPort:  appConfig.TemporalHostPort(),
 		Namespace: "default",
 	})
 

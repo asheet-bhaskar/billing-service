@@ -20,10 +20,17 @@ type CurrencyRepositoryTestSuite struct {
 }
 
 func (suite *CurrencyRepositoryTestSuite) SetupTest() {
-	dbClient, err := database.InitDBClient()
+	host := "localhost"
+	port := "5434"
+	user := "billing_service_test"
+	password := "billing_service_test"
+	name := "billing_service_test"
+	migrationsPath := "../migrations"
+
+	dbClient, err := database.InitDBClient(host, port, user, password, name, migrationsPath)
 	suite.Nil(err, "error should be nil")
 
-	suite.dbClient = dbClient.TestDB
+	suite.dbClient = dbClient.DB
 
 	suite.cr = NewCurrencyRepository(dbClient.DB)
 }
