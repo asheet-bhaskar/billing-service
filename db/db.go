@@ -1,9 +1,11 @@
 package db
 
 import (
+	"fmt"
 	"log"
 
 	"encore.dev/storage/sqldb"
+	"github.com/asheet-bhaskar/billing-service/app/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -24,10 +26,13 @@ var testDB = sqldb.NewDatabase("billing_service_test", sqldb.DatabaseConfig{
 
 var Clients *DBClient
 
-func InitDBClient() (*DBClient, error) {
+func InitDBClient(appConfig config.Config) (*DBClient, error) {
 	log.Println("initialising database clients for application databse")
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s",
+		appConfig.DBHost(), appConfig.DBUser(), appConfig.DBPassword(), appConfig.DBName(), appConfig.DBPort())
+
 	db, err := gorm.Open(postgres.New(postgres.Config{
-		Conn: db.Stdlib(),
+		DSN: dsn,
 	}))
 	if err != nil {
 		log.Fatalf("failed to initialise application database, error", err.Error())

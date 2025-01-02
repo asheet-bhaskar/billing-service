@@ -3,6 +3,8 @@ package handlers
 import (
 	"log"
 
+	"encore.dev/config"
+	appConfig "github.com/asheet-bhaskar/billing-service/app/config"
 	service "github.com/asheet-bhaskar/billing-service/app/services"
 	"github.com/asheet-bhaskar/billing-service/db"
 	"github.com/asheet-bhaskar/billing-service/db/repository"
@@ -17,15 +19,20 @@ type APIService struct {
 	Currency service.CurrencyService
 }
 
+var applicationConfig = config.Load[appConfig.Config]()
+
 func initAPIService() (*APIService, error) {
-	dbClient, _ := db.InitDBClient()
+	dbClient, _ := db.InitDBClient(applicationConfig)
 	BillRepo := repository.NewBillRepository(dbClient.DB)
 	CustomerRepo := repository.NewCustomerRepository(dbClient.DB)
 	CurrencyRepo := repository.NewCurrencyRepository(dbClient.DB)
-	temporalClient, err := client.NewClient(client.Options{})
+	temporalClient, err := client.NewClient(client.Options{
+		HostPort:  applicationConfig.TemporalHostPort(),
+		Namespace: "default",
+	})
 
 	if err != nil {
-		log.Fatal("Failed to start temporal")
+		log.Fatal("Failed to initiate temporal client")
 	}
 
 	log.Println("starting temporal worker")

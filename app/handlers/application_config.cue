@@ -1,0 +1,6 @@
+TemporalHostPort: "localhost:7233"
+DBHost:       "localhost"
+DBPort:       "5432"
+DBUser:       "billing_service"
+DBPassword:   "billingService$123"
+DBName:       "billing_service"
