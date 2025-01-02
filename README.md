@@ -12,7 +12,6 @@ Go application that manages the billing lifecycle and workflows.
 
 ### Develoment Setup
 * clone repository
-  *`git clone https://github.com/asheet-bhaskar/billing-service`
 * cd billing-service
 * Run application dependencies
   * `docker-compose up` 
