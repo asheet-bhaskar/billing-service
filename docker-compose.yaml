@@ -1,0 +1,100 @@
+version: "3.5"
+services:
+  postgresql:
+    container_name: temporal-postgresql
+    environment:
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_USER: temporal
+    image: postgres:14.15
+    networks:
+      - temporal-network
+    ports:
+      - 5433:5432
+    volumes:
+      - /var/lib/postgresql/data
+  temporal:
+    container_name: temporal
+    depends_on:
+      - postgresql
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgresql
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+    image: temporalio/auto-setup:1.25.2
+    networks:
+      - temporal-network
+    ports:
+      - 7233:7233
+    volumes:
+      - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+  temporal-admin-tools:
+    container_name: temporal-admin-tools
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    image: temporalio/admin-tools:1.25
+    networks:
+      - temporal-network
+    stdin_open: true
+    tty: true
+  temporal-ui:
+    container_name: temporal-ui
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    image: temporalio/ui:2.32.0
+    networks:
+      - temporal-network
+    ports:
+      - 8080:8080
+  billing-service-postgresql:
+    container_name: billing-service-postgresql
+    depends_on:
+      - temporal-ui
+    environment:
+      POSTGRES_PASSWORD: billing_service
+      POSTGRES_USER: billing_service
+    image: postgres:14.15
+    networks:
+      - temporal-network
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U billing_service -d billing_service" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - /var/lib/postgresql/data
+  billing-service-test-postgresql:
+    container_name: billing-service-test-postgresql
+    depends_on:
+      - temporal-ui
+    environment:
+      POSTGRES_PASSWORD: billing_service_test
+      POSTGRES_USER: billing_service_test
+    image: postgres:14.15
+    networks:
+      - temporal-network
+    ports:
+      - 5434:5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U billing_service_test -d billing_service_test" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - /var/lib/postgresql/data
+networks:
+  temporal-network:
+    driver: bridge
+    name: temporal-network
