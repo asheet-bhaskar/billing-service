@@ -25,10 +25,17 @@ type BillRepositoryTestSuite struct {
 }
 
 func (suite *BillRepositoryTestSuite) SetupTest() {
-	dbClient, err := database.InitDBClient()
+	host := "localhost"
+	port := "5434"
+	user := "billing_service_test"
+	password := "billing_service_test"
+	name := "billing_service_test"
+	migrationsPath := "../migrations"
+
+	dbClient, err := database.InitDBClient(host, port, user, password, name, migrationsPath)
 	suite.Nil(err, "error should be nil")
 
-	suite.dbClient = dbClient.TestDB
+	suite.dbClient = dbClient.DB
 	suite.br = NewBillRepository(dbClient.DB)
 	suite.csr = NewCustomerRepository(dbClient.DB)
 	suite.crr = NewCurrencyRepository(dbClient.DB)
