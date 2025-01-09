@@ -37,7 +37,7 @@ func (cr *customerRepository) Create(ctx context.Context, customer *models.Custo
 
 func (cr *customerRepository) GetByID(ctx context.Context, id string) (*models.Customer, error) {
 	customer := &models.Customer{}
-	result := cr.db.Where("id = ?", id).Find(&customer)
+	result := cr.db.Where("id = ?", id).First(&customer)
 
 	if result.Error == gorm.ErrRecordNotFound {
 		log.Printf("customer not found for id %s\n", id)

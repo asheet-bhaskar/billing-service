@@ -95,7 +95,10 @@ func (suite *BillRepositoryTestSuite) Test_CreateBillWhenSucceeds() {
 }
 
 func (suite *BillRepositoryTestSuite) Test_GetByIDWhenSucceeds() {
-	_, err := suite.br.GetByID(context.Background(), suite.bill.ID)
+	bill, err := suite.br.Create(context.Background(), suite.bill)
+	suite.Nil(err, "error should be nil")
+
+	_, err = suite.br.GetByID(context.Background(), bill.ID)
 	suite.Nil(err, "error should be nil")
 }
 

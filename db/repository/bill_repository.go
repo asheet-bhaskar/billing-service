@@ -43,7 +43,7 @@ func (br *billRepository) Create(ctx context.Context, bill *models.Bill) (*model
 
 func (br *billRepository) GetByID(ctx context.Context, id string) (*models.Bill, error) {
 	bill := &models.Bill{}
-	result := br.db.Where("id = ?", id).Find(&bill)
+	result := br.db.Where("id = ?", id).First(&bill)
 
 	if result.Error == gorm.ErrRecordNotFound {
 		log.Printf("bill does not exist for id, %s. error is %s", id, result.Error.Error())
@@ -115,7 +115,7 @@ func (br *billRepository) GetLineItemsByBillID(ctx context.Context, billID strin
 
 func (br *billRepository) GetLineItemByID(ctx context.Context, id string) (*models.LineItem, error) {
 	lineItem := &models.LineItem{}
-	result := br.db.Where("id = ?", id).Find(&lineItem)
+	result := br.db.Where("id = ?", id).First(&lineItem)
 
 	if result.Error == gorm.ErrRecordNotFound {
 		log.Printf("line item does not exist for id, %s. error is %s", id, result.Error.Error())

@@ -38,7 +38,7 @@ func (cr *currencyRepository) Create(ctx context.Context, currency *models.Curre
 
 func (cr *currencyRepository) GetByID(ctx context.Context, id string) (*models.Currency, error) {
 	currency := &models.Currency{}
-	result := cr.db.Where("id = ?", id).Find(&currency)
+	result := cr.db.Where("id = ?", id).First(&currency)
 
 	if result.Error == gorm.ErrRecordNotFound {
 		log.Printf("currency not found for id %s\n", id)
