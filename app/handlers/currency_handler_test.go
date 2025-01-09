@@ -40,7 +40,7 @@ func (suite *currencyHandlerTestSuite) SetupTest() {
 
 func (suite *currencyHandlerTestSuite) Test_CreateReturnSucceeds() {
 	ctx := context.Background()
-	currencyRequest := &models.Currency{
+	currencyRequest := &models.CreateCurrencyRequest{
 		Code:   "USD",
 		Name:   "United states dollar",
 		Symbol: "$",
@@ -64,7 +64,7 @@ func (suite *currencyHandlerTestSuite) Test_CreateReturnSucceeds() {
 
 func (suite *currencyHandlerTestSuite) Test_CreateReturnFailsWhenServiceReturnsAlreadyExistError() {
 	ctx := context.Background()
-	currencyRequest := &models.Currency{
+	currencyRequest := &models.CreateCurrencyRequest{
 		Code:   "USD",
 		Name:   "United states dollar",
 		Symbol: "$",
@@ -87,7 +87,7 @@ func (suite *currencyHandlerTestSuite) Test_CreateReturnFailsWhenServiceReturnsA
 
 func (suite *currencyHandlerTestSuite) Test_CreateReturnFailsWhenServiceReturnsUnknownError() {
 	ctx := context.Background()
-	currencyRequest := &models.Currency{
+	currencyRequest := &models.CreateCurrencyRequest{
 		Code:   "USD",
 		Name:   "United states dollar",
 		Symbol: "$",
@@ -112,7 +112,7 @@ func (suite *currencyHandlerTestSuite) Test_CreateReturnFailsWhenServiceReturnsU
 
 func (suite *currencyHandlerTestSuite) Test_CreateReturnFailsWhenServiceRequestIsInvalid() {
 	ctx := context.Background()
-	currencyRequest := &models.Currency{
+	currencyRequest := &models.CreateCurrencyRequest{
 		Code:   "",
 		Name:   "",
 		Symbol: "$",

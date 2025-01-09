@@ -40,7 +40,7 @@ func (bs *APIService) GetCurrencyHandler(ctx context.Context, id string) (*model
 }
 
 // encore:api  method=POST path=/currencies
-func (bs *APIService) CreateCurrencyHandler(ctx context.Context, request *models.Currency) (*models.Currency, error) {
+func (bs *APIService) CreateCurrencyHandler(ctx context.Context, request *models.CreateCurrencyRequest) (*models.Currency, error) {
 	if !request.IsValid() {
 		log.Println("invalid currency request")
 		return &models.Currency{}, &errs.Error{
@@ -49,7 +49,7 @@ func (bs *APIService) CreateCurrencyHandler(ctx context.Context, request *models
 		}
 	}
 
-	currency, err := bs.Currency.Create(ctx, request)
+	currency, err := bs.Currency.Create(ctx, request.ToCurrency())
 
 	if err == ce.CurrencyAlreadyExistError {
 		log.Println("currency already exists")

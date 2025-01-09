@@ -8,18 +8,18 @@ import (
 
 type CurrencyTestSuite struct {
 	suite.Suite
-	validCurrency   *Currency
-	invalidCurrency *Currency
+	validCurrency   *CreateCurrencyRequest
+	invalidCurrency *CreateCurrencyRequest
 }
 
 func (suite *CurrencyTestSuite) SetupTest() {
-	suite.validCurrency = &Currency{
+	suite.validCurrency = &CreateCurrencyRequest{
 		Code:   "USD",
 		Name:   "United states dolalr",
 		Symbol: "$",
 	}
 
-	suite.invalidCurrency = &Currency{
+	suite.invalidCurrency = &CreateCurrencyRequest{
 		Code: "USD",
 	}
 }
