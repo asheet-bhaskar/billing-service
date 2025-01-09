@@ -8,17 +8,17 @@ import (
 
 type CustomerTestSuite struct {
 	suite.Suite
-	validCustomer   *Customer
-	invalidCustomer *Customer
+	validCustomer   *CreateCustomerRequest
+	invalidCustomer *CreateCustomerRequest
 }
 
 func (suite *CustomerTestSuite) SetupTest() {
-	suite.validCustomer = &Customer{
+	suite.validCustomer = &CreateCustomerRequest{
 		FirstName: "John",
 		LastName:  "jacobs",
 		Email:     "john.jacobs@mail.com",
 	}
-	suite.invalidCustomer = &Customer{
+	suite.invalidCustomer = &CreateCustomerRequest{
 		FirstName: "",
 	}
 }

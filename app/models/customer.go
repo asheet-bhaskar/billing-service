@@ -11,9 +11,23 @@ type Customer struct {
 	UpdatedAt time.Time
 }
 
-func (r *Customer) IsValid() bool {
+type CreateCustomerRequest struct {
+	FirstName string
+	LastName  string
+	Email     string
+}
+
+func (r *CreateCustomerRequest) IsValid() bool {
 	if r.FirstName == "" || r.LastName == "" || r.Email == "" {
 		return false
 	}
 	return true
+}
+
+func (r *CreateCustomerRequest) ToCustomer() *Customer {
+	return &Customer{
+		FirstName: r.FirstName,
+		LastName:  r.LastName,
+		Email:     r.Email,
+	}
 }

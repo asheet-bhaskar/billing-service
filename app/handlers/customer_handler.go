@@ -40,7 +40,7 @@ func (bs *APIService) GetCustomerHandler(ctx context.Context, id string) (*model
 }
 
 // encore:api  method=POST path=/customers
-func (bs *APIService) CreateCustomerHandler(ctx context.Context, request *models.Customer) (*models.Customer, error) {
+func (bs *APIService) CreateCustomerHandler(ctx context.Context, request *models.CreateCustomerRequest) (*models.Customer, error) {
 	if !request.IsValid() {
 		log.Println("invalid customer request")
 		return &models.Customer{}, &errs.Error{
@@ -49,7 +49,7 @@ func (bs *APIService) CreateCustomerHandler(ctx context.Context, request *models
 		}
 	}
 
-	customer, err := bs.Customer.Create(ctx, request)
+	customer, err := bs.Customer.Create(ctx, request.ToCustomer())
 
 	if err == ce.CustomerAlreadyExistError {
 		log.Println("customer already exists")

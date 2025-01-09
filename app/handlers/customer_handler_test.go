@@ -40,7 +40,7 @@ func (suite *customerHandlerTestSuite) SetupTest() {
 
 func (suite *customerHandlerTestSuite) Test_CreateReturnSucceeds() {
 	ctx := context.Background()
-	customerRequest := &models.Customer{
+	customerRequest := &models.CreateCustomerRequest{
 		FirstName: "John",
 		LastName:  "Jacobs",
 		Email:     "john.jacobs@mail.com",
@@ -69,7 +69,7 @@ func (suite *customerHandlerTestSuite) Test_CreateReturnSucceeds() {
 
 func (suite *customerHandlerTestSuite) Test_CreateReturnFailsWhenServiceReturnsAlreadyExistError() {
 	ctx := context.Background()
-	customerRequest := &models.Customer{
+	customerRequest := &models.CreateCustomerRequest{
 		FirstName: "John",
 		LastName:  "Jacobs",
 		Email:     "john.jacobs@mail.com",
@@ -92,7 +92,7 @@ func (suite *customerHandlerTestSuite) Test_CreateReturnFailsWhenServiceReturnsA
 
 func (suite *customerHandlerTestSuite) Test_CreateReturnFailsWhenServiceReturnsUnknownError() {
 	ctx := context.Background()
-	customerRequest := &models.Customer{
+	customerRequest := &models.CreateCustomerRequest{
 		FirstName: "John",
 		LastName:  "Jacobs",
 		Email:     "john.jacobs@mail.com",
@@ -117,7 +117,7 @@ func (suite *customerHandlerTestSuite) Test_CreateReturnFailsWhenServiceReturnsU
 
 func (suite *customerHandlerTestSuite) Test_CreateReturnFailsWhenServiceRequestIsInvalid() {
 	ctx := context.Background()
-	customerRequest := &models.Customer{
+	customerRequest := &models.CreateCustomerRequest{
 		FirstName: "",
 		LastName:  "",
 		Email:     "john.jacobs@mail.com",
