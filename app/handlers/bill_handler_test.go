@@ -301,7 +301,7 @@ func (suite *billHandlerTestSuite) Test_AddLineItemHandlerSucceeds() {
 	ctx := context.Background()
 	now := time.Now().UTC()
 	id := utils.GetNewUUID()
-	lineItemRequest := &models.LineItem{
+	lineItemRequest := &models.AddLineItemrequest{
 		BillID:      id,
 		Description: "item 01",
 		Amount:      10.0,
@@ -316,7 +316,7 @@ func (suite *billHandlerTestSuite) Test_AddLineItemHandlerSucceeds() {
 		Removed:     false,
 	}
 
-	suite.billServiceMock.On("AddLineItems", ctx, lineItemRequest).Return(lineItemResponse, nil)
+	suite.billServiceMock.On("AddLineItems", ctx, lineItemRequest.ToLineItem()).Return(lineItemResponse, nil)
 
 	_, err := suite.apiService.AddLineItemsHandler(ctx, *lineItemRequest)
 	suite.Nil(err)
@@ -324,7 +324,7 @@ func (suite *billHandlerTestSuite) Test_AddLineItemHandlerSucceeds() {
 
 func (suite *billHandlerTestSuite) Test_AddLineItemHandlerFailsWhenLineItemIsInvalid() {
 	ctx := context.Background()
-	lineItemRequest := &models.LineItem{
+	lineItemRequest := &models.AddLineItemrequest{
 		BillID:      "",
 		Description: "item 01",
 		Amount:      10.0,
@@ -337,13 +337,13 @@ func (suite *billHandlerTestSuite) Test_AddLineItemHandlerFailsWhenLineItemIsInv
 func (suite *billHandlerTestSuite) Test_AddLineItemHandlerFailWhenBillNotFound() {
 	ctx := context.Background()
 	id := utils.GetNewUUID()
-	lineItemRequest := &models.LineItem{
+	lineItemRequest := &models.AddLineItemrequest{
 		BillID:      id,
 		Description: "item 01",
 		Amount:      10.0,
 	}
 
-	suite.billServiceMock.On("AddLineItems", ctx, lineItemRequest).Return(&models.LineItem{}, ce.BillNotFoundError)
+	suite.billServiceMock.On("AddLineItems", ctx, lineItemRequest.ToLineItem()).Return(&models.LineItem{}, ce.BillNotFoundError)
 
 	_, err := suite.apiService.AddLineItemsHandler(ctx, *lineItemRequest)
 	suite.NotNil(err)
@@ -352,13 +352,13 @@ func (suite *billHandlerTestSuite) Test_AddLineItemHandlerFailWhenBillNotFound()
 func (suite *billHandlerTestSuite) Test_AddLineItemHandlerFailWhenBillIsClosed() {
 	ctx := context.Background()
 	id := utils.GetNewUUID()
-	lineItemRequest := &models.LineItem{
+	lineItemRequest := &models.AddLineItemrequest{
 		BillID:      id,
 		Description: "item 01",
 		Amount:      10.0,
 	}
 
-	suite.billServiceMock.On("AddLineItems", ctx, lineItemRequest).Return(&models.LineItem{}, ce.BillClosedError)
+	suite.billServiceMock.On("AddLineItems", ctx, lineItemRequest.ToLineItem()).Return(&models.LineItem{}, ce.BillClosedError)
 
 	_, err := suite.apiService.AddLineItemsHandler(ctx, *lineItemRequest)
 	suite.NotNil(err)
@@ -367,7 +367,7 @@ func (suite *billHandlerTestSuite) Test_AddLineItemHandlerFailWhenBillIsClosed()
 func (suite *billHandlerTestSuite) Test_AddLineItemHandlerFailWhenUnknownErrorOccurs() {
 	ctx := context.Background()
 	id := utils.GetNewUUID()
-	lineItemRequest := &models.LineItem{
+	lineItemRequest := &models.AddLineItemrequest{
 		BillID:      id,
 		Description: "item 01",
 		Amount:      10.0,
@@ -375,7 +375,7 @@ func (suite *billHandlerTestSuite) Test_AddLineItemHandlerFailWhenUnknownErrorOc
 
 	testError := errors.New("test error")
 
-	suite.billServiceMock.On("AddLineItems", ctx, lineItemRequest).Return(&models.LineItem{}, testError)
+	suite.billServiceMock.On("AddLineItems", ctx, lineItemRequest.ToLineItem()).Return(&models.LineItem{}, testError)
 
 	_, err := suite.apiService.AddLineItemsHandler(ctx, *lineItemRequest)
 	suite.NotNil(err)

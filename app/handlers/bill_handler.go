@@ -30,7 +30,7 @@ func (bs *APIService) GetBillHandler(ctx context.Context, id string) (*models.Bi
 	}
 
 	if err != nil {
-		log.Printf("error occurred while fetching bill for is %d\n", id)
+		log.Printf("error occurred while fetching bill for is %s\n", id)
 		return &models.Bill{}, &errs.Error{
 			Code:    errs.Unknown,
 			Message: "failed to find bill",
@@ -88,20 +88,20 @@ func (bs *APIService) CreateBillHandler(ctx context.Context, request *models.Bil
 }
 
 //encore:api method=POST path=/bills/items
-func (bs *APIService) AddLineItemsHandler(ctx context.Context, lineItem models.LineItem) (*models.LineItem, error) {
-	if !lineItem.IsValid() {
+func (bs *APIService) AddLineItemsHandler(ctx context.Context, request models.AddLineItemrequest) (*models.LineItem, error) {
+	if !request.IsValid() {
 		log.Println("invalid line item")
-		return &lineItem, &errs.Error{
+		return &models.LineItem{}, &errs.Error{
 			Code:    errs.InvalidArgument,
 			Message: "invalid line item",
 		}
 	}
 
-	item, err := bs.Bill.AddLineItems(ctx, &lineItem)
+	item, err := bs.Bill.AddLineItems(ctx, request.ToLineItem())
 
 	if err == ce.BillNotFoundError {
 		log.Println("bill not found")
-		return &lineItem, &errs.Error{
+		return item, &errs.Error{
 			Code:    errs.InvalidArgument,
 			Message: "bill not found",
 		}
@@ -109,7 +109,7 @@ func (bs *APIService) AddLineItemsHandler(ctx context.Context, lineItem models.L
 
 	if err == ce.BillClosedError {
 		log.Println("bill closed already")
-		return &lineItem, &errs.Error{
+		return item, &errs.Error{
 			Code:    errs.InvalidArgument,
 			Message: "bill closed already",
 		}
@@ -117,7 +117,7 @@ func (bs *APIService) AddLineItemsHandler(ctx context.Context, lineItem models.L
 
 	if err != nil {
 		log.Println("failed to add line item")
-		return &lineItem, &errs.Error{
+		return item, &errs.Error{
 			Code:    errs.Unknown,
 			Message: "failed to add line item",
 		}
